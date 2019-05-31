@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.bttow.elderbracelet"
+    android:versionCode="39"
+    android:versionName="8.11">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.SEND_SMS" /> <!-- 添加权限 -->
+
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+
+    <!-- 读取联系人权限 -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+
+    <!-- 监听来电权限 -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
+    <!-- 震动权限 -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- 添加可以向外拨打电话的权限 -->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+
+    <application
+        android:name="com.bonten.ble.application.MyApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/ruyi"
+        android:label="@string/app_name"
+        android:persistent="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name="com.bt.elderbracelet.activity.MainActivity"
+            android:icon="@drawable/ruyi"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.bt.elderbracelet.activity.RegisterActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.BoundSuccessActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.StepActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.DistanceActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.SportHistoryActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.SleepHistoryActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.HealthScanActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.RemindActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.MedicineRemindActivity"
+            android:screenOrientation="portrait" />
+        <!--
+               <activity
+               android:name="com.bt.elderbracelet.activity.CallClosestPeopleActivity"
+               android:screenOrientation="portrait"/>
+        -->
+        <activity
+            android:name="com.bt.elderbracelet.activity.CaloriaActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.SleepActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.SportTimeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.HeartRateActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.PushListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.PushDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.BloodPressureActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.PressureHistoryActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.BloodSugarActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.SugarHistoryActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.BloodOxygenActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.ContactServicesActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.HeartRateHistoryActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.OxygenHistoryActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.ClockRemindActivity"
+            android:screenOrientation="portrait" />
+        <!--
+         <activity
+             android:name="com.bt.elderbracelet.activity.MedicineRemindActivity"
+             android:screenOrientation="portrait" >
+         </activity>
+        -->
+        <activity
+            android:name="com.bt.elderbracelet.activity.ClockRemindDetailsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.MedicineRemindDetailsActivity"
+            android:screenOrientation="portrait" />
+        <!--
+         <activity
+             android:name="com.bt.elderbracelet.activity.MedicineRemindDetailsActivity"
+             android:screenOrientation="portrait" >
+         </activity>
+        -->
+        <activity
+            android:name="com.bt.elderbracelet.activity.SitRemindActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.SleepRemindActicvity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.SleepRemindDetailsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.SettingsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.LoginActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.BasicInfomationActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustUnspecified|stateHidden" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.PersonalTwoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.PersonalThreeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.AlterPwdActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.ResetPwdActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.wxapi.WXEntryActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.mob.tools.MobUIShell"
+            android:configChanges="keyboardHidden|orientation"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+
+        <service
+            android:name="com.bonten.ble.servise.SampleBleService"
+            android:enabled="true"
+            android:exported="true"
+            android:process="com.sxr.sdk.ble.keepfit.client.SampleBleService">
+
+            <intent-filter>
+                <action android:name="com.sxr.sdk.ble.BluetoothLeService.SampleBleService" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="com.bonten.ble.servise.BleService"
+            android:enabled="true"
+            android:permission="true" />
+
+        <receiver android:name="com.bt.elderbracelet.receiver.SMSReceiver">
+            <intent-filter android:priority="1000">
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+        <!--
+        <receiver android:name="com.bt.elderbracelet.receiver.PhoneReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.PHONE_STATE" />
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
+            </intent-filter>
+        </receiver>
+        -->
+
+        <service
+            android:name="com.bonten.ble.servise.MedicineClockService"
+            android:enabled="true"
+            android:exported="true"></service>
+
+    </application>
+
+</manifest>

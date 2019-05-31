@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#eeeeee"
+    android:orientation="vertical" >
+
+    <com.bt.elderbracelet.view.TitleView
+        android:id="@+id/titleview"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_marginLeft="22dp"
+            android:layout_marginRight="22dp"
+            android:layout_marginTop="16dp"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="    基于UP用户的平均值,专家建议每天行走3.5km,养成积极健康的生活方式"
+                android:textColor="#454545"
+                android:textSize="17dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/distance_sport_icon"
+                    />
+            </LinearLayout>
+            <RelativeLayout
+                android:layout_width="248dp"
+                android:layout_height="248dp"
+                android:layout_marginTop="-8dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@drawable/distance_circle_out_bg">
+
+
+
+                <com.bt.elderbracelet.tools.other.TasksCompletedDistanceView
+                    android:id="@+id/tasks_view"
+                    android:layout_width="256dp"
+                    android:layout_height="256dp"
+                    android:layout_centerInParent="true"
+                    android:layout_gravity="center_horizontal"
+                    app:circleColor="@color/ride_e9"
+                    app:radius="90dp"
+                    app:ringColor="@color/ride_81"
+                    app:strokeWidth="12dp"
+                    />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/distance_color"
+                        android:text="@string/toal_distance"
+                        android:textSize="21dp" />
+
+                    <TextView
+                        android:id="@+id/tv_total_distance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/circle_step_gra"
+                        android:textStyle="bold"
+                        android:text="0"
+                        android:layout_marginTop="5dp"
+                        android:textSize="42dp" />
+
+                </LinearLayout>
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp">
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1.0"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center" >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="20dp"
+                        android:text="@string/aim"
+                        android:textSize="21dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="20dp"
+                        android:text="3.5km"
+                        android:layout_marginTop="5dp"
+                        android:textSize="25dp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1.0"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"  >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="20dp"
+                        android:textColor="@color/distance_color"
+                        android:text="@string/already_finish"
+                        android:textSize="21dp" />
+
+                    <TextView
+                        android:id="@+id/tv_current_distance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="20dp"
+                        android:textColor="@color/circle_step_gra"
+                        android:layout_marginTop="5dp"
+                        android:textSize="25dp"
+                        android:text="0km"/>
+
+                </LinearLayout>
+            </LinearLayout>
+
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:layout_marginTop="20dp"
+                android:background="#454545" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:layout_marginTop="10dp"
+                android:text="@string/litter_remind"
+                android:textColor="@color/black"
+                android:textSize="21dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+            <ImageView
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/step_black_cricle"
+                android:layout_marginTop="6dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="走路(跑步)的过程中,最好15分钟就补充一次水份，切记不要口渴狂喝哦。"
+                android:textColor="@color/black"
+                android:textSize="15dp"
+                android:layout_marginLeft="2dp"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/step_black_cricle"
+                    android:layout_marginTop="6dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="风湿骨患者和心脏病患者不宜做剧烈运动,以散步为宜。"
+                    android:textColor="@color/black"
+                    android:textSize="15dp"
+                    android:layout_marginLeft="2dp" />
+            </LinearLayout>
+
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

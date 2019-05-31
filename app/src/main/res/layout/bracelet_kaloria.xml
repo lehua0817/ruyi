@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <com.bt.elderbracelet.view.TitleView
+        android:id="@+id/titleview"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="16dp"
+        android:layout_below="@+id/titleview">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="22dp"
+                android:layout_marginRight="22dp"
+                android:textColor="@color/black"
+                android:text="     一位60公斤体重的成年男性一日的基础代谢所需热量值1440大卡。散步每半小时消耗75大卡,对心肺功能增强有益,能改善血液循环,活动关节,有助健康。"
+                android:textSize="17dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="60dp" />
+            <ImageView
+                android:id="@+id/iv_center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:background="@drawable/caloria_center_icon"/>
+
+            <com.bt.elderbracelet.tools.other.TasksCompletedCaloriaView
+                android:id="@+id/tasks_caloria_view"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center_horizontal"
+                app:circleColor="@color/ride_e9"
+                app:radius="90dp"
+                app:ringColor="@color/ride_81"
+                app:strokeWidth="12dp"/>
+            <TextView
+                android:id="@+id/tv_caloria"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="0卡"
+                android:textColor="@color/caloria_color"
+                android:textSize="25dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="165dp"
+                android:layout_marginLeft="22dp"
+                android:layout_marginRight="22dp"
+                android:gravity="bottom"
+                android:orientation="vertical">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@color/line_color"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center"
+                    android:text="@string/litter_remind"
+                    android:textColor="@color/black"
+                    android:textSize="21dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="    卡路里,通常指人体正常能量的数据指标,科学的运动可以通过消耗一定的热量,达到进行血液循环,加速新陈代谢的作用"
+                    android:textSize="15dp"/>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

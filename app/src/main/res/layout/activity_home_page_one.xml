@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFFFFF"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="5dp">
+
+            <RelativeLayout
+                android:id="@+id/rl_steps"
+                android:layout_width="0dp"
+                android:layout_weight="1.0"
+                android:layout_height="120dp"
+                android:background="@drawable/step_bg"
+                android:gravity="center_vertical"
+                android:layout_margin="5dp">
+
+                <ImageView
+                    android:id="@+id/iv_icon"
+                    android:layout_width="80dp"
+                    android:layout_height="85dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:background="@drawable/foot_icon"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="步数"
+                    android:textSize="30dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="8dp"
+                    android:textColor="@color/white"
+                    android:gravity="center"
+                    />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_carolias"
+                android:layout_width="0dp"
+                android:layout_weight="1.0"
+                android:layout_height="120dp"
+                android:background="@drawable/carolia_bg"
+                android:gravity="center_vertical"
+                android:layout_margin="5dp">
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="85dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:background="@drawable/carolia_icon"/>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="能量"
+                        android:textSize="30dp"
+                        android:layout_marginRight="8dp"
+                        android:textColor="@color/white"
+                        android:gravity="center"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="消耗"
+                        android:textSize="30dp"
+                        android:layout_marginRight="8dp"
+                        android:textColor="@color/white"
+                        android:gravity="center"
+                        />
+                </LinearLayout>
+            </RelativeLayout>
+        </LinearLayout>
+
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="5dp">
+
+            <RelativeLayout
+                android:id="@+id/rl_sportTimes"
+                android:layout_width="0dp"
+                android:layout_weight="1.0"
+                android:layout_height="120dp"
+                android:background="@drawable/sport_time_bg"
+                android:gravity="center_vertical"
+                android:layout_margin="5dp">
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="85dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:background="@drawable/times_icon"/>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="运动"
+                        android:textSize="30dp"
+                        android:layout_marginRight="8dp"
+                        android:textColor="@color/white"
+                        android:gravity="center"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="时间"
+                        android:textSize="30dp"
+                        android:layout_marginRight="8dp"
+                        android:textColor="@color/white"
+                        android:gravity="center"
+                        />
+                </LinearLayout>
+            </RelativeLayout>
+
+
+            <RelativeLayout
+                android:id="@+id/rl_distances"
+                android:layout_width="0dp"
+                android:layout_weight="1.0"
+                android:layout_height="120dp"
+                android:background="@drawable/distance_bg"
+                android:gravity="center_vertical"
+                android:layout_margin="5dp">
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="85dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:background="@drawable/distance_icon"/>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="运动"
+                        android:textSize="30dp"
+                        android:layout_marginRight="8dp"
+                        android:textColor="@color/white"
+                        android:gravity="center"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="距离"
+                        android:textSize="30dp"
+                        android:layout_marginRight="8dp"
+                        android:textColor="@color/white"
+                        android:gravity="center"
+                        />
+                </LinearLayout>
+            </RelativeLayout>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="5dp">
+
+            <RelativeLayout
+                android:id="@+id/rl_sleeps"
+                android:layout_width="0dp"
+                android:layout_weight="1.0"
+                android:layout_height="120dp"
+                android:background="@drawable/sleep_bg"
+                android:gravity="center_vertical"
+                android:layout_margin="5dp">
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="85dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:background="@drawable/sleep_icon"/>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="睡眠"
+                        android:textSize="30dp"
+                        android:layout_marginRight="8dp"
+                        android:textColor="@color/white"
+                        android:gravity="center"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="时间"
+                        android:textSize="30dp"
+                        android:layout_marginRight="8dp"
+                        android:textColor="@color/white"
+                        android:gravity="center"
+                        />
+                </LinearLayout>
+            </RelativeLayout>
+
+
+            <RelativeLayout
+                android:id="@+id/rl_heartRates"
+                android:layout_width="0dp"
+                android:layout_weight="1.0"
+                android:layout_height="120dp"
+                android:background="@drawable/heart_rate_bg"
+                android:gravity="center_vertical"
+                android:layout_margin="5dp">
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="85dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:background="@drawable/heart_rate_icon"/>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="心率"
+                        android:textSize="30dp"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginRight="8dp"
+                        android:textColor="@color/white"
+                        android:gravity="center"
+                        />
+                </LinearLayout>
+            </RelativeLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#FFFFFF"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+    <com.bt.elderbracelet.view.TitleView
+        android:id="@+id/titleview"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="22dp"
+            android:layout_marginRight="22dp"
+            android:layout_marginTop="16dp">
+
+            <TextView
+                android:id="@+id/tv_state"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/sugar_top_tips"
+                android:textColor="@color/black"
+                android:textSize="17dp"/>
+
+
+            <TextView
+                android:id="@+id/tvdate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv_state"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:text=""
+                android:textSize="17dp"/>
+
+            <LinearLayout
+                android:id="@+id/l3"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvdate"
+                android:layout_marginTop="8dp"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2.0"
+                    android:gravity="right"
+                    android:text="@string/bloodsugar1"
+                    android:textSize="21dp"/>
+
+                <TextView
+                    android:id="@+id/tv_sugar_pre"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.2"
+                    android:gravity="center"
+                    android:text="0"
+                    android:textColor="@color/pressure_high_bg"
+                    android:textSize="25dp"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2.0"
+                    android:text="@string/sugar_unit"
+                    android:textSize="20dp"/>
+            </LinearLayout>
+
+
+            <RelativeLayout
+                android:id="@+id/layout_pre"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_below="@+id/l3"
+                android:layout_marginTop="10dp">
+
+                <com.bt.elderbracelet.tools.other.DecimalScaleRulerView
+                    android:id="@+id/ruler_suagar_pre"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="5dp"/>
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="60dp"
+                    android:layout_centerHorizontal="true"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/weight_set_target_arrow"/>
+
+            </RelativeLayout>
+
+
+            <LinearLayout
+                android:id="@+id/l4"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/layout_pre"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2.0"
+                    android:gravity="right"
+                    android:text="@string/sugar_after"
+                    android:textSize="20dp"/>
+
+                <TextView
+                    android:id="@+id/tv_sugar_after"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.0"
+                    android:gravity="center"
+                    android:text="0"
+                    android:textColor="@color/pressure_low_bg"
+                    android:textSize="25dp"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2.0"
+                    android:text="@string/sugar_unit"
+                    android:textSize="20dp"/>
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/layout_after"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/l4"
+                android:layout_marginTop="15dp"
+                >
+
+                <com.bt.elderbracelet.tools.other.DecimalScaleRulerView
+                    android:id="@+id/ruler_sugar_after"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="5dp"/>
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="60dp"
+                    android:layout_centerHorizontal="true"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/weight_set_target_arrow"/>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_sure"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_below="@+id/layout_after">
+
+                <TextView
+                    android:id="@+id/tvsure"
+                    android:layout_width="80dp"
+                    android:layout_height="40dp"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/sugar_sure"
+                    android:gravity="center"
+                    android:text="@string/sure"
+                    android:textColor="#ffffff"
+                    android:textSize="18dp"/>
+
+                <Chronometer
+                    android:id="@+id/ch"
+                    android:layout_width="80dp"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginLeft="20dp"
+                    android:layout_toEndOf="@+id/tvsure"
+                    android:background="@color/lightgray"
+                    android:gravity="center_vertical"
+                    android:textSize="20sp"/>
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/rl_sure"
+                android:layout_marginTop="10dp"
+                android:gravity="bottom"
+                android:orientation="vertical">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2px"
+                    android:layout_margin="2dp"
+                    android:background="@color/line_color"/>
+
+                <TextView
+                    android:id="@+id/tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center"
+                    android:text="@string/litter_remind"
+                    android:textColor="@color/black"
+                    android:textSize="21dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/sugar_bottom_tips"
+                    android:textColor="@color/black"
+                    android:textSize="15dp"/>
+            </LinearLayout>
+
+
+        </RelativeLayout>
+    </ScrollView>
+</LinearLayout>

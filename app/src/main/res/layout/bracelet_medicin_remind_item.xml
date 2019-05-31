@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/white"
+              android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/layout_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/rl_medicine_name_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_medicine_remind_time"
+                android:layout_width="wrap_content"
+                android:layout_height="55dp"
+                android:layout_marginLeft="20dp"
+                android:gravity="center"
+                android:text="00:00"
+                android:textColor="@color/medicine_main_color"
+                android:textSize="41dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="right">
+
+                <CheckBox
+                    android:id="@+id/cb_medicine_swicth"
+                    android:layout_width="60dp"
+                    android:layout_height="fill_parent"
+                    android:layout_marginRight="20dp"
+                    android:button="@drawable/che_style"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv_medicine_remind_time"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:id="@+id/layout_show"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="6dp">
+
+                    <ImageView
+                        android:id="@+id/iv_show"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/medicine_arrow_off"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_table"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:text="标签"
+                    android:textSize="14dp"/>
+
+
+                <TextView
+                    android:id="@+id/tv_save"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="right"
+                    android:paddingRight="5dp"
+                    android:text="保存"
+                    android:textSize="20dp"/>
+
+            </LinearLayout>
+        </RelativeLayout>
+
+
+        <include
+            layout="@layout/bracelet_medicine_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+
+</LinearLayout>

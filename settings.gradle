@@ -1,0 +1,3 @@
+include ':app', ':richtext'
+include ':oneKeyShareNew'
+include ':shareSDK'

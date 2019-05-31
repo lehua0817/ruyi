@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <color name="gray_translucent">#55000000</color>
+    <color name="orange_light">#FF333333</color>
+    <color name="brown_dark">#FF570000</color>
+    <color name="pink_light">#FFFFE4E4</color>
+    <color name="text_name_color">#FF777777</color>
+    <color name="menu_bg_color">#FF515567</color>
+    <color name="gray_light">#FFAAAAAA</color>
+    <color name="drak">#FF600109</color>
+    
+</resources>

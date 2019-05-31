@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:speedreader="http://schemas.android.com/apk/res-auto">
+
+
+    <com.bt.elderbracelet.tools.other.VNTNumberPickerPreference
+        android:defaultValue="10"
+        android:dialogTitle="睡眠提醒"
+        android:key="preference_custom_summary"
+        speedreader:vnt_maxValue="100"
+        speedreader:vnt_minValue="0"/>
+
+</PreferenceScreen>

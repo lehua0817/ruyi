@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <com.bt.elderbracelet.view.TitleView
+        android:id="@+id/titleview"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:id="@+id/lin_top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/titleview"
+        android:background="@drawable/services_top_bg">
+
+        <TextView
+            android:id="@+id/tv_revice_call"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/services_text"
+            android:gravity="right|center_vertical"
+            android:layout_marginRight="15dp"
+            android:textSize="25dp"
+            android:visibility="gone"
+            android:textColor="@color/white_bg"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lin_call"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/lin_top"
+        android:layout_marginTop="10dp"
+        android:gravity="center">
+
+        <LinearLayout
+            android:id="@+id/lin_text_bg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/services_call_red_bg"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/preblem"
+                android:gravity="center_vertical"
+                android:textSize="28dp"
+                android:drawablePadding="3dp"
+                android:drawableLeft="@drawable/services_call_icon"
+                android:textColor="@color/white_bg"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/lin_call"
+        android:padding="25dp">
+
+        <TextView
+            android:id="@+id/tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:text="@string/services_advice"/>
+        <EditText
+            android:id="@+id/et_input_advice"
+            android:layout_width="350dp"
+            android:layout_height="130dp"
+            android:layout_below="@+id/tv"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/bg_edittext"
+            android:padding="5dp"
+            />
+        <Button
+            android:id="@+id/btn_advice_send"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="@string/services_send"
+            android:textColor="@color/white_bg"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/services_send_btn_bg"
+            android:layout_below="@+id/et_input_advice"
+            android:layout_marginTop="5dp"/>
+    </RelativeLayout>
+</RelativeLayout>
