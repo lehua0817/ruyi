@@ -106,7 +106,7 @@ public class ClockAdapter extends BaseAdapter {
             public void onCheckedChanged(CompoundButton buttonView,
                                          boolean isChecked)
             {
-                if (MyApplication.isConndevice) {
+                if (MyApplication.isConnected) {
                     clockEntity.isOpen = isChecked;
                     MyApplication.cb_switch = isChecked;
                     if (flag == KIND_CLOCK) {

@@ -76,7 +76,7 @@ public class SitRemindActivity extends Activity implements View.OnClickListener,
             @Override
             public void onClick(View button)
             {
-                if (MyApplication.isConndevice) {
+                if (MyApplication.isConnected) {
                     MyApplication.cb_switch = cb_swith.isChecked();
                     sitClock.isOpen = cb_swith.isChecked();
 

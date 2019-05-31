@@ -14,7 +14,6 @@ import com.bt.elderbracelet.entity.BloodPressure;
 import com.bt.elderbracelet.entity.others.Event;
 import com.bt.elderbracelet.tools.BaseUtils;
 import com.bt.elderbracelet.view.TitleView;
-import com.bt.elderbracelet.view.TitleView.onBackLister;
 import com.bt.elderbracelet.view.TitleView.onSetLister;
 import com.bttow.elderbracelet.R;
 
@@ -40,7 +39,6 @@ public class BloodPressureActivity extends Activity {
         MyApplication.getInstance().addActivity(this);
         EventBus.getDefault().register(this);
         initView();
-
     }
 
     private void initView()
@@ -65,6 +63,15 @@ public class BloodPressureActivity extends Activity {
         tvLowPressure = (TextView) findViewById(R.id.tv_low_pressure);
         tvHighPressure.setText("0.0");
         tvLowPressure.setText("0.0");
+
+        titleview.setBack(R.drawable.steps_back, new TitleView.onBackLister() {
+
+            @Override
+            public void onClick(View button)
+            {
+                finish();
+            }
+        });
 
     }
 
@@ -94,14 +101,6 @@ public class BloodPressureActivity extends Activity {
                 }
             }
         }
-        titleview.setBack(R.drawable.steps_back, new onBackLister() {
-
-            @Override
-            public void onClick(View button)
-            {
-                finish();
-            }
-        });
     }
 
     public void onEventMainThread(Event event)

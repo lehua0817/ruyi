@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 import android.widget.LinearLayout;
@@ -14,14 +13,11 @@ import android.widget.TextView;
 
 import com.bonten.ble.application.MyApplication;
 import com.bonten.ble.servise.BleService;
-import com.bt.elderbracelet.entity.others.Event;
 import com.bt.elderbracelet.protocal.OrderData;
 import com.bt.elderbracelet.tools.MethodUtils;
 import com.bt.elderbracelet.tools.SpHelp;
 import com.bt.elderbracelet.view.TitleView;
 import com.bttow.elderbracelet.R;
-
-import de.greenrobot.event.EventBus;
 
 public class SettingsActivity extends Activity implements View.OnClickListener {
 
@@ -36,7 +32,6 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_settings);
         MyApplication.getInstance().addActivity(this);
-        EventBus.getDefault().register(this);
         initView();
         initListener();
         initData();
@@ -82,7 +77,7 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
 
     private void initData()
     {
-        if (!MyApplication.isConndevice) {
+        if (!MyApplication.isConnected) {
             MethodUtils.showToast(SettingsActivity.this, "尚未连接手环");
             finish();
             Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
@@ -90,7 +85,7 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
             overridePendingTransition(R.anim.move_left_in_activity, R.anim.move_right_out_activity);
             return;
         }
-        BleService.sendCommand(OrderData.getCommonOrder(OrderData.GET_DEVICE_MAC_ORDER));
+        textMac.setText(SpHelp.getDeviceMac());
     }
 
     AlertDialog.Builder builder = null;
@@ -101,7 +96,7 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
     {
         switch (v.getId()) {
             case R.id.ll_restart:
-                if (!MyApplication.isConndevice) {
+                if (!MyApplication.isConnected) {
                     MethodUtils.showToast(SettingsActivity.this, "尚未连接手环");
                     finish();
                     Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
@@ -200,19 +195,5 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
                 break;
         }
 
-    }
-
-    public void onEventMainThread(Event event)
-    {
-        if (!TextUtils.isEmpty(event.mac)) {
-            textMac.setText(event.mac);
-        }
-    }
-
-    @Override
-    protected void onDestroy()
-    {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 }

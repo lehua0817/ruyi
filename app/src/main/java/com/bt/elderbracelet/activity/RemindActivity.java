@@ -185,7 +185,7 @@ public class RemindActivity extends Activity implements OnClickListener, OnCheck
                 @Override
                 public void onClick(DialogInterface dialog, int which)
                 {
-                    if (!MyApplication.isConndevice) {
+                    if (!MyApplication.isConnected) {
                         MethodUtils.showToast(getApplicationContext(), "请先连接蓝牙设备");
                         finish();
                     } else {

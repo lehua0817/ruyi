@@ -66,13 +66,12 @@ public class MyApplication extends Application {
     /**
      * 蓝牙连接标志
      */
-    public static boolean isConndevice = false;
+    public static boolean isConnected = false;
     public static BluetoothAdapter mBluetoothAdapter;
     public static BluetoothManager mBluetoothManager;
 
     @Override
-    public void onCreate()
-    {
+    public void onCreate() {
         super.onCreate();
 
         instance = this;
@@ -108,8 +107,7 @@ public class MyApplication extends Application {
         }
     }
 
-    public void uploadLoginDate()
-    {
+    public void uploadLoginDate() {
         if (!TextUtils.isEmpty(SpHelp.getUserId())) {
             JSONObject object = new JSONObject();
             try {
@@ -119,8 +117,7 @@ public class MyApplication extends Application {
             }
             HttpRequest.post(URLConstant.URL_LOGIN_DATE, object.toString(), new HttpRequest.HttpRequestCallback() {
                 @Override
-                public void onSuccess(JSONObject response)
-                {
+                public void onSuccess(JSONObject response) {
                     if (response.optString("error").equals("0")) {
                         System.out.println("上传登陆时间成功");
                     } else {
@@ -129,16 +126,14 @@ public class MyApplication extends Application {
                 }
 
                 @Override
-                public void onFailure()
-                {
+                public void onFailure() {
                     MethodUtils.showToast(getApplicationContext(), "请检查网络是否异常");
                 }
             });
         }
     }
 
-    public static MyApplication getInstance()
-    {
+    public static MyApplication getInstance() {
         return instance;
     }
 
@@ -146,14 +141,12 @@ public class MyApplication extends Application {
      * 退出程序使用
      */
     //添加Activity 到容器中
-    public void addActivity(Activity activity)
-    {
+    public void addActivity(Activity activity) {
         activityList.add(activity);
     }
     //遍历所有Activity 并finish
 
-    public void exit()
-    {
+    public void exit() {
         for (Activity activity : activityList) {
             activity.finish();
         }

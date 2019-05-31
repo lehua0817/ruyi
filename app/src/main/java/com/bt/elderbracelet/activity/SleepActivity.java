@@ -78,7 +78,7 @@ public class SleepActivity extends Activity {
             @Override
             public void onClick(View v)
             {
-                if (MyApplication.isConndevice) {
+                if (MyApplication.isConnected) {
                     BleService.sendCommand(OrderData.getCommonOrder(OrderData.GET_SLEEP_BIG_DATA));   //手机向手环 获取当天睡眠数据 的指令  4bytes
                 } else {
                     MethodUtils.showToast(getApplicationContext(), "请先连接蓝牙");

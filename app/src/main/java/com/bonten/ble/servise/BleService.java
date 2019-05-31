@@ -69,7 +69,7 @@ public class BleService extends Service {
      * 连接指定Mac地址的蓝牙设备
      */
     public void connectBleDevice(String address, Context context) {
-        MyApplication.isConndevice = false;
+        MyApplication.isConnected = false;
         if (null == mBluetoothAdapter) {
             return;
         }
@@ -101,12 +101,12 @@ public class BleService extends Service {
             String intentAction;
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 gatt.discoverServices();
-                MyApplication.isConndevice = true;
+                MyApplication.isConnected = true;
                 intentAction = ACTION_GATT_CONNECTED;
                 broadcastUpdate(intentAction);
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 BleService.blueToothServiceclose();
-                MyApplication.isConndevice = false;
+                MyApplication.isConnected = false;
                 intentAction = ACTION_GATT_DISCONNECTED;
                 broadcastUpdate(intentAction);
             }
@@ -248,7 +248,7 @@ public class BleService extends Service {
      * 关闭mBluetoothGatt
      */
     public static void blueToothServiceclose() {
-        MyApplication.isConndevice = false;   //蓝牙没有连接
+        MyApplication.isConnected = false;   //蓝牙没有连接
         if (mBluetoothGatt == null) {
             return;
         }

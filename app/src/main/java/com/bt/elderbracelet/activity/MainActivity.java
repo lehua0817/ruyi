@@ -1,7 +1,5 @@
 package com.bt.elderbracelet.activity;
 
-import android.app.Activity;
-
 /**
  * 中华人民共和国万岁，毛主席永垂不朽
  */
@@ -131,7 +129,7 @@ public class MainActivity extends Activity implements OnClickListener {
         @Override
         public void onServiceConnected(ComponentName componentName,
                                        IBinder service) {
-            Log.v(TAG, "BleService連接成功!!");
+            Log.v(TAG, "BleService连接成功!!");
             mBluetoothLeService = ((BleService.LocalBinder) service).getService();
         }
 
@@ -173,18 +171,10 @@ public class MainActivity extends Activity implements OnClickListener {
         @Override
         public void onConnectStateChanged(int state) throws RemoteException {
             Log.v("onConnectStateChanged", "state = " + state);
-//            updateConnectState(state);
-            String intentAction = "";
             if (state == BluetoothProfile.STATE_CONNECTED) {
-//                gatt.discoverServices();
-                MyApplication.isConndevice = true;
-                intentAction = ACTION_GATT_CONNECTED;
-                broadcastUpdate(intentAction);
+                doAfterConnect();
             } else if (state == BluetoothProfile.STATE_DISCONNECTED) {
-                BleService.blueToothServiceclose();
-                MyApplication.isConndevice = false;
-                intentAction = ACTION_GATT_DISCONNECTED;
-                broadcastUpdate(intentAction);
+                doAfterDisConnect();
             }
         }
 
@@ -194,6 +184,7 @@ public class MainActivity extends Activity implements OnClickListener {
         @Override
         public void onScanCallback(String deviceName, String deviceMacAddress, int rssi)
                 throws RemoteException {
+
             Log.i(TAG, String.format("onScanCallback [%1$s][%2$s](%3$d)", deviceName, deviceMacAddress, rssi));
         }
 
@@ -561,6 +552,63 @@ public class MainActivity extends Activity implements OnClickListener {
 
     };
 
+    /**
+     * 手环和手机连接成功后的动作
+     */
+    private void doAfterConnect() {
+        MyApplication.isConnected = true;
+        closeAlarm();
+        if (runnable_reconn != null) {
+            mHandler.removeCallbacks(runnable_reconn);
+        }
+        if (mConnectingDialog != null && mConnectingDialog.isShowing()) {
+            mConnectingDialog.dismiss();
+            mConnectingDialog = null;
+        }
+
+        MethodUtils.showToast(MainActivity.this, "蓝牙设备连接成功");
+        img_connect_state.setImageResource(R.drawable.connected);
+
+        if (SpHelp.getPhoneCallRemind()) {
+            startMonitorPhone();
+        }
+
+        SystemClock.sleep(2000);
+        //这里必须要 睡眠2秒，是为了保证BleService已经打开了一切通知，如果没停顿两秒，
+        //则很有可能会报错
+        BleService.sendCommand(OrderData.getCommonOrder(OrderData.GET_SLEEP_BIG_DATA));
+        //手机向手环 获取昨天睡眠数据
+        //为什么这条语句放在 同步历史数据的前面呢？因为睡眠数据就是历史数据，所以必须在同步睡眠数据之前
+        //将昨天的睡眠数据补充完整
+        SystemClock.sleep(500);
+        syncHistoryData();    //很关键，每次连接手环后，都要将手机中的数据同步到服务器上
+
+        SystemClock.sleep(500);
+        BleService.sendCommand(OrderData.getCommonOrder(OrderData.SYN_TIME_ORDER));
+        SystemClock.sleep(500);
+        BleService.sendCommand(OrderData.getCommonOrder(OrderData.SYN_SPORT_ORDER));
+    }
+
+    /**
+     * 手环和手机取消连接后的动作
+     */
+    private void doAfterDisConnect() {
+        MyApplication.isConnected = false;
+        BleService.blueToothServiceclose();
+        img_connect_state.setImageResource(R.drawable.dis_connected);
+
+        if (SpHelp.getFdRemind() == SpHelp.FD_REMIND_OPEN) {
+            //开启了防丢
+            openAlarmPrompt();
+        }
+
+        //启动重连
+        if (null != runnable_reconn) {
+            mHandler.removeCallbacks(runnable_reconn);
+        }
+        mHandler.post(runnable_reconn);
+    }
+
     private void callRemoteConnect(String name, String mac) {
         if (mac == null || mac.length() == 0) {
             Toast.makeText(this, "ble device mac address is not correctly!", Toast.LENGTH_SHORT).show();
@@ -765,53 +813,10 @@ public class MainActivity extends Activity implements OnClickListener {
         public void onReceive(Context context, final Intent intent) {
             final String action = intent.getAction();
             if (ACTION_GATT_CONNECTED.equals(action)) {
-                //蓝牙已连接
-                closeAlarm();
-                if (runnable_reconn != null) {
-                    mHandler.removeCallbacks(runnable_reconn);
-                }
-                if (mConnectingDialog != null && mConnectingDialog.isShowing()) {
-                    mConnectingDialog.dismiss();
-                    mConnectingDialog = null;
-                }
 
-                MethodUtils.showToast(getApplicationContext(), "蓝牙设备连接成功");
-                img_connect_state.setImageResource(R.drawable.connected);
-
-                if (SpHelp.getPhoneCallRemind()) {
-                    startMonitorPhone();
-                }
-
-                SystemClock.sleep(2000);
-                //这里必须要 睡眠2秒，是为了保证BleService已经打开了一切通知，如果没停顿两秒，
-                //则很有可能会报错
-                BleService.sendCommand(OrderData.getCommonOrder(OrderData.GET_SLEEP_BIG_DATA));
-                //手机向手环 获取昨天睡眠数据
-                //为什么这条语句放在 同步历史数据的前面呢？因为睡眠数据就是历史数据，所以必须在同步睡眠数据之前
-                //将昨天的睡眠数据补充完整
-                SystemClock.sleep(500);
-                syncHistoryData();    //很关键，每次连接手环后，都要将手机中的数据同步到服务器上
-
-                SystemClock.sleep(500);
-                BleService.sendCommand(OrderData.getCommonOrder(OrderData.SYN_TIME_ORDER));
-                SystemClock.sleep(500);
-                BleService.sendCommand(OrderData.getCommonOrder(OrderData.SYN_SPORT_ORDER));
             } else if (ACTION_GATT_DISCONNECTED.equals(action)) {//断开报警
 
-                img_connect_state.setImageResource(R.drawable.dis_connected);
 
-                if (SpHelp.getFdRemind() == SpHelp.FD_REMIND_OPEN) {  //
-                    //开启了防丢
-                    openAlarmPrompt();
-                }
-
-                /**
-                 *启动重连
-                 */
-                if (null != runnable_reconn) {
-                    mHandler.removeCallbacks(runnable_reconn);
-                }
-                mHandler.post(runnable_reconn);
             } else if (BleService.ACTION_DATA_AVAILABLE.equals(action)) {
                 //蓝牙特征值改变，数据返回，解析数据
                 byte[] dataArray = intent.getByteArrayExtra("byteData");
@@ -932,7 +937,7 @@ public class MainActivity extends Activity implements OnClickListener {
     };
 
     public void syncHistoryData() {
-        if (!MyApplication.isConndevice) {
+        if (!MyApplication.isConnected) {
             MethodUtils.showToast(getApplicationContext(), "请先连接蓝牙设备");
             return;
         }
@@ -1090,7 +1095,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
         if (!TextUtils.isEmpty(user_id)) {
 
-            MyApplication.isConndevice = false;
+            MyApplication.isConnected = false;
             try {
                 if (mServiceConnection != null)
                     unbindService(mServiceConnection);

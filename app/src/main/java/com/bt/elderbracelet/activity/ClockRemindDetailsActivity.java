@@ -96,7 +96,7 @@ public class ClockRemindDetailsActivity extends Activity implements OnClickListe
             @Override
             public void onClick(View button)
             {
-                if (!MyApplication.isConndevice) {
+                if (!MyApplication.isConnected) {
                     MethodUtils.showToast(getApplicationContext(), "请先连接蓝牙设备");
                     return;
                 }
