@@ -1,6 +1,12 @@
 package com.bt.elderbracelet.activity;
 
 import android.app.Activity;
+
+/**
+ * 中华人民共和国万岁，毛主席永垂不朽
+ */
+
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
