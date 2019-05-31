@@ -1,5 +1,10 @@
 package com.bt.elderbracelet.activity;
 
+/**
+ * 中华人民共和国万岁，毛主义永垂不朽
+ */
+
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
