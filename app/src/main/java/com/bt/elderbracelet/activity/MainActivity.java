@@ -49,7 +49,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bonten.ble.application.MyApplication;
-import com.bonten.ble.servise.BleService;
 import com.bonten.ble.servise.SampleBleService;
 import com.bt.elderbracelet.adapter.DeviceAdapter;
 import com.bt.elderbracelet.data.ModelDao;
@@ -64,7 +63,6 @@ import com.bt.elderbracelet.entity.others.PushMessage;
 import com.bt.elderbracelet.okhttp.HttpRequest;
 import com.bt.elderbracelet.okhttp.URLConstant;
 import com.bt.elderbracelet.protocal.OrderData;
-import com.bt.elderbracelet.protocal.ResolveData;
 import com.bt.elderbracelet.tools.BaseUtils;
 import com.bt.elderbracelet.tools.MethodUtils;
 import com.bt.elderbracelet.tools.SpHelp;
@@ -89,9 +87,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import de.greenrobot.event.EventBus;
 
-import static com.bonten.ble.servise.BleService.ACTION_GATT_CONNECTED;
-import static com.bonten.ble.servise.BleService.ACTION_GATT_DISCONNECTED;
-
 /**
  * 主界面类
  * 主要处理功能:
@@ -109,47 +104,30 @@ public class MainActivity extends Activity implements OnClickListener {
     private Runnable runnable_reconn;   //用于定时重连
     private Runnable runnable_stop_scan;   //用于停止扫描蓝牙
 
-    private BleService mBluetoothLeService;  // 蓝牙主服务类,贯穿整个项目核心
-    private BluetoothManager mBluetoothManager;
-    private BluetoothAdapter mBluetoothAdapter;
-
     boolean mScaning = false;     //代表当前是否正在搜索蓝牙
     public static final int SCAN_SECOND = 10 * 1000;
     private AtomicInteger pushCount = new AtomicInteger(10);
     private AlertDialog mConnectingDialog = null;
     private AlertDialog mScanningDialog = null;
-    private ArrayList<DeviceInfo> deviceInfos;
+    private ArrayList<DeviceInfo> deviceList;
 
     private boolean flag = false;
     // false 表示这次搜索蓝牙在 注册时或者解除绑定后的 搜索蓝牙，总之，此时尚未绑定手环
     // true  表示这次搜索蓝牙操作在 主界面上，是已经绑定了手环
 
-    // 绑定服务
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName,
-                                       IBinder service) {
-            Log.v(TAG, "BleService连接成功!!");
-            mBluetoothLeService = ((BleService.LocalBinder) service).getService();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            Log.v(TAG, "BleService断开连接!!");
-            mBluetoothLeService = null;
-        }
-    };
 
     private IRemoteService mService;
-    private ServiceConnection mServiceConnection2 = new ServiceConnection() {
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Toast.makeText(MainActivity.this, "Service connected", Toast.LENGTH_SHORT).show();
 
             mService = IRemoteService.Stub.asInterface(service);
+            MyApplication.remoteService = mService;
             try {
                 mService.registerCallback(mServiceCallback);
-
+                ensureOpenBluetooth(); //初始化蓝牙适配器 判断是否打开蓝牙
+                connectSavedDevice();
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -159,11 +137,10 @@ public class MainActivity extends Activity implements OnClickListener {
         public void onServiceDisconnected(ComponentName name) {
             Toast.makeText(MainActivity.this, "Service disconnected", Toast.LENGTH_SHORT).show();
             mService = null;
+            MyApplication.remoteService = null;
         }
     };
     private IServiceCallback mServiceCallback = new IServiceCallback.Stub() {
-
-
         /**
          *  设备连接状态改变
          *   0:未连接 、1：连接中 、2：已连接
@@ -184,8 +161,8 @@ public class MainActivity extends Activity implements OnClickListener {
         @Override
         public void onScanCallback(String deviceName, String deviceMacAddress, int rssi)
                 throws RemoteException {
-
-            Log.i(TAG, String.format("onScanCallback [%1$s][%2$s](%3$d)", deviceName, deviceMacAddress, rssi));
+            Log.v(TAG, String.format("onScanCallback [%1$s][%2$s](%3$d)", deviceName, deviceMacAddress, rssi));
+            addDevice(new DeviceInfo(deviceName, deviceMacAddress));
         }
 
         /**
@@ -383,7 +360,6 @@ public class MainActivity extends Activity implements OnClickListener {
 //            sleepcount = 0;
         }
 
-
         @Override
         public void onSetPhontMode(int arg0) throws RemoteException {
             Log.v("onSetPhontMode", "result:" + arg0);
@@ -576,17 +552,17 @@ public class MainActivity extends Activity implements OnClickListener {
         SystemClock.sleep(2000);
         //这里必须要 睡眠2秒，是为了保证BleService已经打开了一切通知，如果没停顿两秒，
         //则很有可能会报错
-        BleService.sendCommand(OrderData.getCommonOrder(OrderData.GET_SLEEP_BIG_DATA));
+        /**
+         * todo  BleService.sendCommand(OrderData.getCommonOrder(OrderData.GET_SLEEP_BIG_DATA));
+         */
         //手机向手环 获取昨天睡眠数据
         //为什么这条语句放在 同步历史数据的前面呢？因为睡眠数据就是历史数据，所以必须在同步睡眠数据之前
         //将昨天的睡眠数据补充完整
         SystemClock.sleep(500);
         syncHistoryData();    //很关键，每次连接手环后，都要将手机中的数据同步到服务器上
 
-        SystemClock.sleep(500);
-        BleService.sendCommand(OrderData.getCommonOrder(OrderData.SYN_TIME_ORDER));
-        SystemClock.sleep(500);
-        BleService.sendCommand(OrderData.getCommonOrder(OrderData.SYN_SPORT_ORDER));
+        callgetCurSportData();
+
     }
 
     /**
@@ -594,14 +570,12 @@ public class MainActivity extends Activity implements OnClickListener {
      */
     private void doAfterDisConnect() {
         MyApplication.isConnected = false;
-        BleService.blueToothServiceclose();
         img_connect_state.setImageResource(R.drawable.dis_connected);
 
         if (SpHelp.getFdRemind() == SpHelp.FD_REMIND_OPEN) {
             //开启了防丢
             openAlarmPrompt();
         }
-
         //启动重连
         if (null != runnable_reconn) {
             mHandler.removeCallbacks(runnable_reconn);
@@ -609,7 +583,33 @@ public class MainActivity extends Activity implements OnClickListener {
         mHandler.post(runnable_reconn);
     }
 
-    private void callRemoteConnect(String name, String mac) {
+    /**
+     * 之前保存了蓝牙设备，现在重新连接
+     */
+    private void connectSavedDevice() {
+        String deviceName = SpHelp.getDeviceName();
+        String deviceMac = SpHelp.getDeviceMac();
+        //判断蓝牙是否打开,如果打开了,直接扫描;
+        if (!TextUtils.isEmpty(deviceName) && !TextUtils.isEmpty(deviceMac)) {
+            ensureOpenBluetooth();
+            connectRomoteDevice(deviceName, deviceMac);
+            if (mConnectingDialog != null) {
+                mConnectingDialog.dismiss();
+                mConnectingDialog = null;
+            }
+            mConnectingDialog = MethodUtils.createDialog(MainActivity.this, "正在连接蓝牙设备,请稍等");
+            mConnectingDialog.show();
+        }
+
+    }
+
+
+    /**
+     * @param name 蓝牙设备名字
+     * @param mac  设备硬件地址
+     *             连接陌生的设备，此方法只在搜索蓝牙后使用
+     */
+    private void connectRomoteDevice(String name, String mac) {
         if (mac == null || mac.length() == 0) {
             Toast.makeText(this, "ble device mac address is not correctly!", Toast.LENGTH_SHORT).show();
             return;
@@ -627,6 +627,20 @@ public class MainActivity extends Activity implements OnClickListener {
         }
     }
 
+    private void callgetCurSportData() {
+        int result;
+        if (mService != null) {
+            try {
+                result = mService.getCurSportData();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Remote call error!", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "Service is not available yet!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         System.out.println("我是onCreate，我被执行了");
@@ -634,13 +648,12 @@ public class MainActivity extends Activity implements OnClickListener {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         //注册EventBus
         EventBus.getDefault().register(this);
-
         modelDao = new ModelDao(getApplicationContext());
 
-        if (deviceInfos == null) {
-            deviceInfos = new ArrayList<>();
+        if (deviceList == null) {
+            deviceList = new ArrayList<>();
         }
-        device_adapter = new DeviceAdapter(getApplicationContext(), deviceInfos);
+        device_adapter = new DeviceAdapter(getApplicationContext(), deviceList);
 
         if (!TextUtils.isEmpty(SpHelp.getUserId())) {
             user_id = SpHelp.getUserId();
@@ -650,20 +663,11 @@ public class MainActivity extends Activity implements OnClickListener {
         // 检查注册信息以及手环绑定信息
         if (!TextUtils.isEmpty(user_id) && !TextUtils.isEmpty(SpHelp.getDeviceMac())) {
             setContentView(R.layout.main_activity);
-
+            initUI();
             MyApplication.getInstance().addActivity(MainActivity.this);
-
+            taskGetPush();//启动接收推送消息的线程
             flag = true;
             initServiceAndReceiver(); //初始化蓝牙服务,各种UUID以及注册广播
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            openBluetooth();          //初始化蓝牙适配器 判断是否打开蓝牙
-            readyScanDeice();
-            initUI();
         } else {
             //如果Registre表中数据为空，即现在这台设备是陌生的设备，那么先显示设备绑定界面
             //即搜索附近的蓝牙BLE设备
@@ -672,8 +676,8 @@ public class MainActivity extends Activity implements OnClickListener {
             MyApplication.getInstance().addActivity(this);
 
             flag = false;
-            openBluetooth();
-            readyScanDeice();
+            ensureOpenBluetooth();
+            startScanDevice();
 
             titleView = (TitleView) findViewById(R.id.titleview);
             titleView.setbg(R.drawable.register_titlebg);
@@ -683,11 +687,10 @@ public class MainActivity extends Activity implements OnClickListener {
             titleView.right(R.string.refresh, new TitleView.onSetLister() {
                 @Override
                 public void onClick(View button) {
-                    if (null != deviceInfos && deviceInfos.size() > 0) {
-                        deviceInfos.clear();
+                    if (null != deviceList && deviceList.size() > 0) {
+                        deviceList.clear();
                         device_adapter.notifyDataSetChanged();
                     }
-                    readyScanDeice();
                 }
             });
 
@@ -695,18 +698,22 @@ public class MainActivity extends Activity implements OnClickListener {
             lv_device_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    String mac = deviceInfos.get(i).getMac();
-                    SpHelp.saveDeviceMac(mac); //保存Mac地址
-                    scanBleDevice(false);  //当你都选择了一个设备以后，那就不需要再继续扫描附近的设备了
+                    String mac = deviceList.get(i).getMac();
+                    String name = deviceList.get(i).getName();
+                    SpHelp.saveDeviceMac(mac);
+                    SpHelp.saveDeviceName(name);
+                    stopScanDevice();  //当你都选择了一个设备以后，那就不需要再继续扫描附近的设备了
                     //选中某个MAC后 进入用户注册信息界面;
                     if (!TextUtils.isEmpty(SpHelp.getUserId())) {
                         //会跳转到这个页面只有两种情况，要么是初次使用软件，
                         //要么是解除绑定后跳转到这个页面
                         //这种情况是解除绑定
                         setContentView(R.layout.main_activity);
-                        initServiceAndReceiver(); //初始化蓝牙服务,各种UUID以及注册广播
-                        readyScanDeice();
                         initUI();
+                        MyApplication.getInstance().addActivity(MainActivity.this);
+                        taskGetPush();//启动接收推送消息的线程
+                        flag = true;
+                        initServiceAndReceiver(); //初始化蓝牙服务,各种UUID以及注册广播
                     } else {    //这种情况是 初次使用软件，则需要注册
                         Intent intent1 = new Intent(MainActivity.this, RegisterActivity.class);
                         startActivity(intent1);
@@ -718,22 +725,58 @@ public class MainActivity extends Activity implements OnClickListener {
         }
     }
 
+
+    private void startScanDevice() {
+
+        if (mService != null) {
+            try {
+                if (mScaning) {
+                    stopScanDevice();
+                }
+                mScaning = true;
+                mService.scanDevice(true);
+                if (mScanningDialog != null && mScanningDialog.isShowing()) {
+                    mScanningDialog.dismiss();
+                    mScanningDialog = null;
+                }
+                mScanningDialog = MethodUtils.createDialog(MainActivity.this, "正在搜索附近手环");
+                mScanningDialog.show();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Remote call error!", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "Service is not available yet!", Toast.LENGTH_SHORT).show();
+        }
+
+
+    }
+
+    private void stopScanDevice() {
+
+        if (mService != null) {
+            try {
+                mScaning = false;
+                mService.scanDevice(false);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Remote call error!", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "Service is not available yet!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     /**
      * 初始化了一个Handler、Runnable，但是Runnable并没有执行，只是先初始化，等待之后被执行
      */
     public void initHandlerAndRunnable() {
         mHandler = new Handler();
-        runnable_reconn = new Runnable() {  //我去，这个runnable内部还要执行自己，
+        runnable_reconn = new Runnable() {
             //即每15秒 扫描一次附近的蓝牙设备
             @Override
             public void run() {
-                if (MyApplication.mBluetoothAdapter.isEnabled()) {//如果蓝牙已经打开
-                    readyScanDeice();
-                } else {
-                    //提示开启蓝牙
-                    openBluetooth();
-                    readyScanDeice();
-                }
+                connectSavedDevice();
                 mHandler.postDelayed(runnable_reconn, 1000 * 5);
             }
         };
@@ -742,8 +785,7 @@ public class MainActivity extends Activity implements OnClickListener {
             @Override
             public void run() {
                 if (mScaning) {
-                    System.out.println("停止了窗口");
-                    scanBleDevice(false);
+                    stopScanDevice();
                     if (mScanningDialog != null && mScanningDialog.isShowing()) {
                         mScanningDialog.dismiss();
                     }
@@ -755,15 +797,15 @@ public class MainActivity extends Activity implements OnClickListener {
                             .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    readyScanDeice();
+                                    startScanDevice();
                                 }
                             })
                             .setNegativeButton("取消", null).create();
-                    System.out.println("deviceInfos.size() :" + deviceInfos.size());
-                    if (deviceInfos.size() == 0) {
+                    System.out.println("deviceList.size() :" + deviceList.size());
+                    if (deviceList.size() == 0) {
                         alertDialog.show();
                     }
-                    if ((flag == true) && (!deviceInfos.contains(SpHelp.getDeviceMac()))) {
+                    if ((flag == true) && (!deviceList.contains(SpHelp.getDeviceMac()))) {
                         alertDialog.show();
                     }
                 }
@@ -773,62 +815,41 @@ public class MainActivity extends Activity implements OnClickListener {
 
 
     //初始化蓝牙适配器 判断是否打开蓝牙
-    public void openBluetooth() {
-        mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        mBluetoothAdapter = mBluetoothManager.getAdapter();
-        if (mBluetoothAdapter == null) {   //如果手机不支持蓝牙，则直接结束
+    public void ensureOpenBluetooth() {
+        BluetoothManager manager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothAdapter adapter = manager.getAdapter();
+        if (adapter == null) {   //如果手机不支持蓝牙，则直接结束
             finish();
         }
-        MyApplication.mBluetoothAdapter = mBluetoothAdapter;
-        MyApplication.mBluetoothManager = mBluetoothManager;
-        if (!mBluetoothAdapter.isEnabled()) {
+        if (!adapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, 1);
         }
     }
 
     public void initServiceAndReceiver() {
-        Intent gattServiceIntent = new Intent(MainActivity.this, BleService.class);
-        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
-
-
-        /**
-         * 这个Service 的作用是 检查一下要不要向网络服务器上传本地数据库的 健康数据，
-         * 如果需要上传，那么具体要上传哪几天的数据
-         */
-        IntentFilter mIntentFilter = new IntentFilter();
-        mIntentFilter.addAction(ACTION_GATT_CONNECTED);            //蓝牙已经连接
-        mIntentFilter.addAction(ACTION_GATT_DISCONNECTED);         //蓝牙连接已经断开
-        mIntentFilter.addAction(BleService.ACTION_DATA_AVAILABLE);          //蓝牙特征值改变，数据返回，解析数据
-        mIntentFilter.addAction(BleService.ACTION_RSSI_CHANGED);          //手环信号强度改变
-        registerReceiver(mBroadcastReceiver, mIntentFilter);
-
         Intent intent = new Intent(MainActivity.this, SampleBleService.class);
-        bindService(intent, mServiceConnection2, BIND_AUTO_CREATE);
+        bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
+
+        IntentFilter smsIntentFilter = new IntentFilter();
+        // 接收短信的广播
+        smsIntentFilter.addAction("android.provider.Telephony.SMS_RECEIVED");
+        registerReceiver(smsReceiver, smsIntentFilter);
     }
 
-    //蓝牙广播
-    BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver smsReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, final Intent intent) {
-            final String action = intent.getAction();
-            if (ACTION_GATT_CONNECTED.equals(action)) {
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")) {
+                System.out.println("来短信了");
 
-            } else if (ACTION_GATT_DISCONNECTED.equals(action)) {//断开报警
-
-
-            } else if (BleService.ACTION_DATA_AVAILABLE.equals(action)) {
-                //蓝牙特征值改变，数据返回，解析数据
-                byte[] dataArray = intent.getByteArrayExtra("byteData");
-                new ResolveData(MainActivity.this).decodeCommonData(dataArray);
-            } else if (BleService.ACTION_RSSI_CHANGED.equals(action)) {
-                int rssi = intent.getIntExtra("rssi", 0);
-                if (Math.abs(rssi) > 80) {
-                    BleService.sendCommand(OrderData.getCommonOrder(OrderData.SHAKE_ORDER));
+                if (SpHelp.getPhoneMsgRemind()) {
+                    callNotify(OrderData.NOTIFICATION_SMS, "", "");
                 }
             }
         }
     };
+
 
     //开启手机来电监控
     private void startMonitorPhone() {
@@ -842,7 +863,7 @@ public class MainActivity extends Activity implements OnClickListener {
                     case TelephonyManager.CALL_STATE_OFFHOOK:
                         break;
                     case TelephonyManager.CALL_STATE_RINGING:
-                        BleService.sendCommand(OrderData.getCommonOrder(OrderData.PHONE_CALL_REMIND_ORDER));
+                        callNotify(OrderData.NOTIFICATION_PHONE, "", "");
                         break;
                     default:
                         break;
@@ -853,89 +874,25 @@ public class MainActivity extends Activity implements OnClickListener {
         manager.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE);
     }
 
-    /**
-     * 准备扫描设备;
-     * 每次扫描设备之前都要先关闭Gatt
-     */
-    private void readyScanDeice() {
-        BleService.blueToothServiceclose();   //关闭mBluetoothGatt
-        if (mScanningDialog != null && mScanningDialog.isShowing()) {
-            mScanningDialog.dismiss();
-            mScanningDialog = null;
-        }
-        mScanningDialog = MethodUtils.createDialog(MainActivity.this, "正在搜索附近手环");
-        mScanningDialog.show();
 
-        if (mScaning) {
-            scanBleDevice(false);
-            return;
-        }
-        scanBleDevice(true);
-    }
-
-
-    /**
-     * 开启(关闭)蓝牙扫描
-     *
-     * @param enable
-     */
-    private void scanBleDevice(boolean enable) {
-        if (enable) {
-            mScaning = true;
-            mHandler.postDelayed(runnable_stop_scan, SCAN_SECOND);
-            mBluetoothAdapter.startLeScan(mLeScanCallback);
-        } else {
-            mScaning = false;
-            if (runnable_stop_scan != null) {
-                mHandler.removeCallbacks(runnable_stop_scan);
-            }
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);
-        }
-    }
-
-    // 扫描装置的回调
-    private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
-        @Override
-        public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
-//            Log.v(TAG,"device.name = " + device.getName());
-//            Log.v(TAG,"device.mac = " + device.getAddress());
-            DeviceInfo newDevice = new DeviceInfo();
-            newDevice.setName(device.getName());
-            newDevice.setMac(device.getAddress());
-            EventBus.getDefault().post(newDevice);
-
-            if (device.getAddress().equals(SpHelp.getDeviceMac())) {
-                //当搜到可用设备,停止扫描;
-                if (mScaning) {
-                    scanBleDevice(false);
-
-                    if (mService != null) {
-//                        mBluetoothLeService.connectBleDevice(device.getAddress(), MainActivity.this);
-                        /**
-                         *
-                         * device.name = Y9A-56B9
-                         device.mac = 09:20:99:09:56:B9
-                         */
-                        callRemoteConnect(device.getName(), device.getAddress());
-
-                        if (mScanningDialog != null && mScanningDialog.isShowing()) {
-                            mScanningDialog.dismiss();
-                            mScanningDialog = null;
-                        }
-                        if (mConnectingDialog != null) {
-                            mConnectingDialog.dismiss();
-                            mConnectingDialog = null;
-                        }
-                        mConnectingDialog = MethodUtils.createDialog(MainActivity.this, "正在连接蓝牙设备,请稍等");
-                        mConnectingDialog.show();
-                    } else {
-                        System.out.println("连接时 mService 为null******************");
-                    }
-                }
-            }
-        }
-    };
-
+    //    /**
+//     * 开启(关闭)蓝牙扫描
+//     *
+//     * @param enable
+//     */
+//    private void scanBleDevice(boolean enable) {
+//        if (enable) {
+//            mScaning = true;
+//            mHandler.postDelayed(runnable_stop_scan, SCAN_SECOND);
+//            mBluetoothAdapter.startLeScan(mLeScanCallback);
+//        } else {
+//            mScaning = false;
+//            if (runnable_stop_scan != null) {
+//                mHandler.removeCallbacks(runnable_stop_scan);
+//            }
+//            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+//        }
+//    }
     public void syncHistoryData() {
         if (!MyApplication.isConnected) {
             MethodUtils.showToast(getApplicationContext(), "请先连接蓝牙设备");
@@ -949,14 +906,6 @@ public class MainActivity extends Activity implements OnClickListener {
         } else {
             MethodUtils.showToast(MainActivity.this, "请检查网络是否正常!");
         }
-    }
-
-    /**
-     * 发送一个指定Action的广播
-     */
-    private void broadcastUpdate(final String action) {
-        final Intent intent = new Intent(action);
-        sendBroadcast(intent);
     }
 
 
@@ -1034,43 +983,35 @@ public class MainActivity extends Activity implements OnClickListener {
         }
     }
 
-    public void onEventMainThread(DeviceInfo info)
-    //info是刚刚扫描到的设备的信息
-    {
-        if (deviceInfos == null) {
+    public void addDevice(DeviceInfo info) {
+        if (deviceList == null) {
             return;
         }
         boolean is_exist = false;
-        if (deviceInfos.size() > 0) {
-            for (int i = 0; i < deviceInfos.size(); i++) {
-                if (deviceInfos.get(i).getMac().equals(info.getMac())) {  //如果刚刚扫描到的设备Mac和deviceInfos的设备相符合
+        if (deviceList.size() > 0) {
+            for (int i = 0; i < deviceList.size(); i++) {
+                if (deviceList.get(i).getMac().equals(info.getMac())) {
+                    //如果刚刚扫描到的设备Mac和deviceInfos的设备相符合
                     //则说明该设备已经保存过
                     is_exist = true;
                     break;
                 }
             }
         }
-        if (!is_exist) {          //如果不存在，则把新设备添加到我们的deviceInfos列表中
-            deviceInfos.add(info);
-            device_adapter.changeData(deviceInfos);
+        if (!is_exist) {
+            //如果不存在，则把新设备添加到我们的deviceInfos列表中
+            deviceList.add(info);
+            device_adapter.changeData(deviceList);
         }
     }
-
-    //发送数据
 
     @Override
     protected void onRestart() {
         super.onRestart();
         if (SpHelp.getJoinGround()) {
-            String address = SpHelp.getDeviceMac();
-            if (!TextUtils.isEmpty(address) && null != BleService.mBluetoothAdapter) {
-                BluetoothDevice device = BleService.mBluetoothAdapter.getRemoteDevice(address);
-                int state = BleService.mBluetoothManager.getConnectionState(device, BluetoothProfile.GATT);
-                if (state == BluetoothProfile.STATE_DISCONNECTED) {//断开 界面重新加载(防止某些功能失效,如EventBus)
-                    //判断蓝牙是否打开,如果打开了,直接扫描;
-                    openBluetooth();
-                    readyScanDeice();
-                }
+
+            if (mService == null) {
+
             }
             SpHelp.saveJoinGround(false);
         }
@@ -1081,43 +1022,27 @@ public class MainActivity extends Activity implements OnClickListener {
 
     }
 
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mBluetoothLeService != null) {
-            BleService.blueToothServiceclose();
-        }
+
         EventBus.getDefault().unregister(this);
-        //关闭扫描
-        if (mScaning) {
-            scanBleDevice(false);
+
+        if (MyApplication.isConnected) {
+            unbindService(mServiceConnection);
         }
 
-        if (!TextUtils.isEmpty(user_id)) {
+        if (timer != null) {
+            timer.cancel();
+        }
 
-            MyApplication.isConnected = false;
-            try {
-                if (mServiceConnection != null)
-                    unbindService(mServiceConnection);
+        if (mConnectingDialog != null && mConnectingDialog.isShowing()) {
+            mConnectingDialog.dismiss();
+        }
 
-                if (mBroadcastReceiver != null)
-                    unregisterReceiver(mBroadcastReceiver);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            stopService(new Intent(this, BleService.class));
-            if (timer != null) {
-                timer.cancel();
-            }
-            //关闭缓冲
-            if (mConnectingDialog != null && mConnectingDialog.isShowing()) {
-                mConnectingDialog.dismiss();
-            }
-
-            if (runnable_reconn != null) {
-                mHandler.removeCallbacks(runnable_reconn);
-            }
+        if (runnable_reconn != null) {
+            mHandler.removeCallbacks(runnable_reconn);
         }
     }
 
@@ -1200,9 +1125,6 @@ public class MainActivity extends Activity implements OnClickListener {
         v3.findViewById(R.id.rl_set_reminder).setOnClickListener(this);
         v3.findViewById(R.id.rl_advice).setOnClickListener(this);
         v3.findViewById(R.id.rl_call_service).setOnClickListener(this);
-
-        taskGetPush();//启动接收推送消息的线程
-
     }
 
     @Override
@@ -1213,6 +1135,7 @@ public class MainActivity extends Activity implements OnClickListener {
              * 下面6个是Page1的图片控件
              */
             case R.id.rl_steps:    //进入步数Activity
+
                 Intent intent1 = new Intent(getApplicationContext(), StepActivity.class);
                 startActivity(intent1);
                 break;
@@ -1407,6 +1330,21 @@ public class MainActivity extends Activity implements OnClickListener {
         //这是内部最重要的函数，要执行两个步骤：
         //第一：container.addView() 添加View到ViewPager中
         //第二：返回刚刚添加的View
+    }
+
+
+    private void callNotify(int type, String title, String content) {
+        boolean result;
+        if (mService != null) {
+            try {
+                result = mService.setNotify(System.currentTimeMillis() + "", type, title, content);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Remote call error!", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "Service is not available yet!", Toast.LENGTH_SHORT).show();
+        }
     }
 
 

@@ -13,10 +13,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.bonten.ble.application.MyApplication;
-import com.bonten.ble.servise.BleService;
 import com.bt.elderbracelet.entity.SleepClock;
 import com.bt.elderbracelet.entity.others.Event;
-import com.bt.elderbracelet.protocal.OrderData;
 import com.bt.elderbracelet.tools.BaseUtils;
 import com.bt.elderbracelet.tools.MethodUtils;
 import com.bt.elderbracelet.tools.SpHelp;
@@ -134,15 +132,16 @@ public class SleepRemindDetailsActivity extends Activity implements OnClickListe
                 clockEntity.isMusic = cb_music.isChecked();
                 clockEntity.isShock = cb_shock.isChecked();
 
-                //发送睡眠提醒指令
-                BleService.sendCommand(OrderData.getSleepClockOrder(clockEntity.id + 1,
-                        clockEntity.isOpen,
-                        clockEntity.whichDays,
-                        clockEntity.isRepeatOnce,
-                        clockEntity.hour,
-                        clockEntity.minute,
-                        clockEntity.endHour,
-                        clockEntity.endMinute));
+                // TODO: 2019/6/1
+//                //发送睡眠提醒指令
+//                BleService.sendCommand(OrderData.getSleepClockOrder(clockEntity.id + 1,
+//                        clockEntity.isOpen,
+//                        clockEntity.whichDays,
+//                        clockEntity.isRepeatOnce,
+//                        clockEntity.hour,
+//                        clockEntity.minute,
+//                        clockEntity.endHour,
+//                        clockEntity.endMinute));
 
 
                 //将新的闹钟数据保存在SharePreference中

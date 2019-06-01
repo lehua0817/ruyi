@@ -14,10 +14,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.bonten.ble.application.MyApplication;
-import com.bonten.ble.servise.BleService;
 import com.bt.elderbracelet.entity.SitClock;
 import com.bt.elderbracelet.entity.others.Event;
-import com.bt.elderbracelet.protocal.OrderData;
 import com.bt.elderbracelet.tools.BaseUtils;
 import com.bt.elderbracelet.tools.MethodUtils;
 import com.bt.elderbracelet.tools.SpHelp;
@@ -92,15 +90,16 @@ public class SitRemindActivity extends Activity implements View.OnClickListener,
 
                     sitClock.isRepeatOnce = cb_repeat_once.isChecked();
 
-                    BleService.sendCommand(OrderData.getSedentaryOrder(
-                            sitClock.isOpen,
-                            sitClock.whichDays,
-                            sitClock.isRepeatOnce,
-                            sitClock.startHour,
-                            sitClock.startMinute,
-                            sitClock.endHour,
-                            sitClock.endHour,
-                            sitClock.sitTime));//发送久坐提醒指令
+                    // TODO: 2019/6/1
+//                    BleService.sendCommand(OrderData.getSedentaryOrder(
+//                            sitClock.isOpen,
+//                            sitClock.whichDays,
+//                            sitClock.isRepeatOnce,
+//                            sitClock.startHour,
+//                            sitClock.startMinute,
+//                            sitClock.endHour,
+//                            sitClock.endHour,
+//                            sitClock.sitTime));//发送久坐提醒指令
                     SpHelp.saveObject(SpHelp.SIT_REMIND, sitClock);
                 } else {
                     MethodUtils.showToast(getApplicationContext(), "请先连接蓝牙设备");

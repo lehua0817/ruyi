@@ -10,11 +10,9 @@ import android.view.Window;
 import android.widget.TextView;
 
 import com.bonten.ble.application.MyApplication;
-import com.bonten.ble.servise.BleService;
 import com.bt.elderbracelet.data.ModelDao;
 import com.bt.elderbracelet.entity.Sport;
 import com.bt.elderbracelet.entity.others.Event;
-import com.bt.elderbracelet.protocal.OrderData;
 import com.bt.elderbracelet.tools.BaseUtils;
 import com.bt.elderbracelet.tools.other.TasksCompletedDistanceView;
 import com.bt.elderbracelet.view.TitleView;
@@ -46,7 +44,8 @@ public class DistanceActivity extends Activity {
         setContentView(R.layout.bracelet_distance);
         MyApplication.getInstance().addActivity(this);
         EventBus.getDefault().register(this);
-        BleService.sendCommand(OrderData.getCommonOrder(OrderData.SYN_SPORT_ORDER));
+        // TODO: 2019/6/1
+//        BleService.sendCommand(OrderData.getCommonOrder(OrderData.SYN_SPORT_ORDER));
         initView();
     }
 

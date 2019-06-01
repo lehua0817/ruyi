@@ -73,7 +73,8 @@ public class RemindActivity extends Activity implements OnClickListener, OnCheck
         cb_phone_call_remind = (CheckBox) findViewById(R.id.cb_phone_call_remind);
         cb_phone_call_remind.setOnCheckedChangeListener(this);
         boolean callEnable = SpHelp.getPhoneCallRemind();
-        if (callEnable) {        //这里是根据系统SharePreference中保存的TELEPHONE_REMIND，来初始化复选框应该显示的界面
+        //这里是根据系统SharePreference中保存的TELEPHONE_REMIND，来初始化复选框应该显示的界面
+        if (callEnable) {
             cb_phone_call_remind.setChecked(true);
         } else {
             cb_phone_call_remind.setChecked(false);

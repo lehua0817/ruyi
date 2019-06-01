@@ -2,8 +2,6 @@ package com.bonten.ble.application;
 
 import android.app.Activity;
 import android.app.Application;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothManager;
 import android.content.SharedPreferences;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -15,6 +13,7 @@ import com.bt.elderbracelet.okhttp.URLConstant;
 import com.bt.elderbracelet.tools.BaseUtils;
 import com.bt.elderbracelet.tools.MethodUtils;
 import com.bt.elderbracelet.tools.SpHelp;
+import com.sxr.sdk.ble.keepfit.aidl.IRemoteService;
 import com.tencent.bugly.crashreport.CrashReport;
 
 import org.json.JSONException;
@@ -67,8 +66,7 @@ public class MyApplication extends Application {
      * 蓝牙连接标志
      */
     public static boolean isConnected = false;
-    public static BluetoothAdapter mBluetoothAdapter;
-    public static BluetoothManager mBluetoothManager;
+    public static IRemoteService remoteService = null;
 
     @Override
     public void onCreate() {

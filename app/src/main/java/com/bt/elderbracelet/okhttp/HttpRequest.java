@@ -9,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.Map;
 
 import okhttp3.MediaType;
@@ -90,6 +89,7 @@ public class HttpRequest {
                     .build();
             try {
                 Response response = okHttpClient.newCall(request).execute();
+                Log.v("Status Code", "Status Code = " + response.code());
                 if (response.isSuccessful()) {
                     return response.body().string();
                 } else {
@@ -152,7 +152,8 @@ public class HttpRequest {
             Response response;
             try {
                 response = httpClient.newCall(request).execute();
-                Log.e("HTTP", new Date().toString() + ": " + request.url().toString());
+
+                Log.v("Status Code", "Status Code = " + response.code());
                 if (!response.isSuccessful()) {
                     return null;
                 }
@@ -165,8 +166,7 @@ public class HttpRequest {
 
         @Override
         protected void onPostExecute(String response) {
-            Log.e("HTTP", new Date().toString() + ": response");
-            Log.e("HTTP", response == null ? "null" : response);
+            Log.v("HTTP", response == null ? "null" : response);
             if (response != null) {
                 try {
                     JSONObject object = new JSONObject(response);

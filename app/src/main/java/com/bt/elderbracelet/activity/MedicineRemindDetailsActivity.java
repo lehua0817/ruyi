@@ -13,10 +13,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.bonten.ble.application.MyApplication;
-import com.bonten.ble.servise.BleService;
 import com.bt.elderbracelet.entity.ClockEntity;
 import com.bt.elderbracelet.entity.others.Event;
-import com.bt.elderbracelet.protocal.OrderData;
 import com.bt.elderbracelet.tools.BaseUtils;
 import com.bt.elderbracelet.tools.MethodUtils;
 import com.bt.elderbracelet.tools.SpHelp;
@@ -127,12 +125,13 @@ public class MedicineRemindDetailsActivity extends Activity implements OnClickLi
                 clockEntity.isShock = cb_shock.isChecked();
 
                 //发送设置闹钟指令
-                BleService.sendCommand(OrderData.getMedicineClockOrder(clockEntity.id + 1,
-                        clockEntity.isOpen,
-                        clockEntity.whichDays,
-                        clockEntity.isRepeatOnce,
-                        clockEntity.hour,
-                        clockEntity.minute));
+                // TODO: 2019/6/1
+//                BleService.sendCommand(OrderData.getMedicineClockOrder(clockEntity.id + 1,
+//                        clockEntity.isOpen,
+//                        clockEntity.whichDays,
+//                        clockEntity.isRepeatOnce,
+//                        clockEntity.hour,
+//                        clockEntity.minute));
 
                 //将新的闹钟数据保存在SharePreference中
                 SpHelp.saveObject(SpHelp.getMedicineClockKey(clockEntity.id), clockEntity);

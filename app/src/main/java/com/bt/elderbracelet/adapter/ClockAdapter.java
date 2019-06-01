@@ -10,10 +10,8 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.bonten.ble.application.MyApplication;
-import com.bonten.ble.servise.BleService;
 import com.bt.elderbracelet.entity.ClockEntity;
 import com.bt.elderbracelet.entity.SleepClock;
-import com.bt.elderbracelet.protocal.OrderData;
 import com.bt.elderbracelet.tools.BaseUtils;
 import com.bt.elderbracelet.tools.MethodUtils;
 import com.bt.elderbracelet.tools.SpHelp;
@@ -32,8 +30,7 @@ public class ClockAdapter extends BaseAdapter {
     public static final int KIND_MEDICINE_CLOCK = 1; //标志着这个ClockAdapter被服药提醒设置使用
     public static final int KIND_SLEEP_CLOCK = 2;  //标志着这个ClockAdapter被睡眠提醒使用
 
-    public ClockAdapter(Context context, ArrayList<ClockEntity> clockList, int flag)
-    {
+    public ClockAdapter(Context context, ArrayList<ClockEntity> clockList, int flag) {
         super();
         this.context = context;
         this.clockList = clockList;
@@ -41,26 +38,22 @@ public class ClockAdapter extends BaseAdapter {
     }
 
     @Override
-    public int getCount()
-    {
+    public int getCount() {
         return 5;
     }
 
     @Override
-    public Object getItem(int position)
-    {
+    public Object getItem(int position) {
         return clockList.get(position);
     }
 
     @Override
-    public long getItemId(int position)
-    {
+    public long getItemId(int position) {
         return position;
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent)
-    {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             LayoutInflater mInflater = LayoutInflater.from(context);
             convertView = mInflater.inflate(R.layout.bracelet_clock_item, null);
@@ -104,43 +97,45 @@ public class ClockAdapter extends BaseAdapter {
         holder.cbOpen.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView,
-                                         boolean isChecked)
-            {
+                                         boolean isChecked) {
                 if (MyApplication.isConnected) {
                     clockEntity.isOpen = isChecked;
                     MyApplication.cb_switch = isChecked;
                     if (flag == KIND_CLOCK) {
-                        BleService.sendCommand(OrderData.getClockOrder(
-                                position + 1,
-                                clockEntity.isOpen,
-                                clockEntity.whichDays,
-                                clockEntity.isRepeatOnce,
-                                clockEntity.hour,
-                                clockEntity.minute));
-                        SpHelp.saveObject(SpHelp.getClockKey(position), clockEntity);
+                        // TODO: 2019/6/1
+//                        BleService.sendCommand(OrderData.getClockOrder(
+//                                position + 1,
+//                                clockEntity.isOpen,
+//                                clockEntity.whichDays,
+//                                clockEntity.isRepeatOnce,
+//                                clockEntity.hour,
+//                                clockEntity.minute));
+//                        SpHelp.saveObject(SpHelp.getClockKey(position), clockEntity);
                     }
                     if (flag == KIND_MEDICINE_CLOCK) {
-                        BleService.sendCommand(OrderData.getMedicineClockOrder(
-                                position + 1,
-                                clockEntity.isOpen,
-                                clockEntity.whichDays,
-                                clockEntity.isRepeatOnce,
-                                clockEntity.hour,
-                                clockEntity.minute));
+                        // TODO: 2019/6/1
+//                        BleService.sendCommand(OrderData.getMedicineClockOrder(
+//                                position + 1,
+//                                clockEntity.isOpen,
+//                                clockEntity.whichDays,
+//                                clockEntity.isRepeatOnce,
+//                                clockEntity.hour,
+//                                clockEntity.minute));
                         SpHelp.saveObject(SpHelp.getMedicineClockKey(position), clockEntity);
                     }
                     if (flag == KIND_SLEEP_CLOCK) {
                         final SleepClock sleepClock = (SleepClock) clockEntity;
                         sleepClock.isOpen = isChecked;
-                        BleService.sendCommand(OrderData.getSleepClockOrder(
-                                position + 1,
-                                sleepClock.isOpen,
-                                sleepClock.whichDays,
-                                sleepClock.isRepeatOnce,
-                                sleepClock.hour,
-                                sleepClock.minute,
-                                sleepClock.endHour,
-                                sleepClock.endMinute));
+                        // TODO: 2019/6/1
+//                        BleService.sendCommand(OrderData.getSleepClockOrder(
+//                                position + 1,
+//                                sleepClock.isOpen,
+//                                sleepClock.whichDays,
+//                                sleepClock.isRepeatOnce,
+//                                sleepClock.hour,
+//                                sleepClock.minute,
+//                                sleepClock.endHour,
+//                                sleepClock.endMinute));
                         SpHelp.saveObject(SpHelp.getSleepClockKey(position), sleepClock);
                     }
                     notifyDataSetChanged();
@@ -159,8 +154,7 @@ public class ClockAdapter extends BaseAdapter {
     /**
      * 根据 每个 闹钟事件的 whichDays[i]参数，返回 字符串 “星期一，星期二，星期六”等
      */
-    private String getWeeks(int position)
-    {
+    private String getWeeks(int position) {
         StringBuilder builder = new StringBuilder("");
         for (int i = 1; i < 7; i++) {
             if (clockList.get(position).whichDays[i]) {

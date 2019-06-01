@@ -13,9 +13,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.bonten.ble.application.MyApplication;
-import com.bonten.ble.servise.BleService;
 import com.bt.elderbracelet.entity.ClockEntity;
-import com.bt.elderbracelet.protocal.OrderData;
 import com.bt.elderbracelet.tools.BaseUtils;
 import com.bt.elderbracelet.tools.MethodUtils;
 import com.bt.elderbracelet.tools.SpHelp;
@@ -118,12 +116,13 @@ public class ClockRemindDetailsActivity extends Activity implements OnClickListe
                 entity.isShock = cb_shock.isChecked();
 
                 //发送设置闹钟指令
-                BleService.sendCommand(OrderData.getClockOrder(entity.id + 1,
-                        entity.isOpen,
-                        entity.whichDays,
-                        entity.isRepeatOnce,
-                        entity.hour,
-                        entity.minute));
+                // TODO: 2019/6/1
+//                BleService.sendCommand(OrderData.getClockOrder(entity.id + 1,
+//                        entity.isOpen,
+//                        entity.whichDays,
+//                        entity.isRepeatOnce,
+//                        entity.hour,
+//                        entity.minute));
 
                 //将新的闹钟数据保存在SharePreference中
                 SpHelp.saveObject(SpHelp.getClockKey(entity.id), entity);

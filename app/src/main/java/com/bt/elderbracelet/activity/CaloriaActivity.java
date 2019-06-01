@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -13,13 +14,12 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bonten.ble.application.MyApplication;
-import com.bonten.ble.servise.BleService;
 import com.bt.elderbracelet.data.ModelDao;
 import com.bt.elderbracelet.entity.Sport;
 import com.bt.elderbracelet.entity.others.Event;
-import com.bt.elderbracelet.protocal.OrderData;
 import com.bt.elderbracelet.tools.BaseUtils;
 import com.bt.elderbracelet.tools.other.TasksCompletedCaloriaView;
 import com.bt.elderbracelet.view.TitleView;
@@ -51,8 +51,22 @@ public class CaloriaActivity extends Activity {
         MyApplication.getInstance().addActivity(this);
         EventBus.getDefault().register(this);
 
-        BleService.sendCommand(OrderData.getCommonOrder(OrderData.SYN_SPORT_ORDER));
+        callgetCurSportData();
         initView();
+    }
+
+    private void callgetCurSportData() {
+        int result;
+        if (MyApplication.remoteService != null) {
+            try {
+                result = MyApplication.remoteService.getCurSportData();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Remote call error!", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "Service is not available yet!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void initView() {
