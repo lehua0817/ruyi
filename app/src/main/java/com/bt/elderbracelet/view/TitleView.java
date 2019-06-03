@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -157,18 +156,15 @@ public class TitleView extends LinearLayout implements OnClickListener {
     {
         switch (v.getId()) {
             case R.id.ivback:
-                Log.i("info", "返回=" + monClickListener);
                 if (monClickListener != null)
                     monClickListener.onClick(v);
                 break;
 
             case R.id.ivtitleimg:
-                Log.i("info", "mShareonClickListener=" + mShareonClickListener);
                 if (mShareonClickListener != null)
                     mShareonClickListener.onClick(v);
                 break;
             case R.id.tvright:
-                Log.i("info", "右边按钮=" + monSetClickListener);
                 if (monSetClickListener != null)
                     monSetClickListener.onClick(v);
                 break;

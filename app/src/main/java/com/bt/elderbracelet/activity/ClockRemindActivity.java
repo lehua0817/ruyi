@@ -35,6 +35,8 @@ public class ClockRemindActivity extends Activity {
     private ClockEntity entity = null;
     private ClockAdapter clockAdapter = null;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -110,7 +112,6 @@ public class ClockRemindActivity extends Activity {
         }
         clockAdapter = new ClockAdapter(getApplicationContext(), clockList, ClockAdapter.KIND_CLOCK);
         listview.setAdapter(clockAdapter);
-
     }
 
     public void onEventMainThread(Event event)
