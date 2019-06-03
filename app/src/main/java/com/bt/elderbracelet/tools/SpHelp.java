@@ -79,7 +79,7 @@ public class SpHelp implements Serializable {
     }
 
     public static String getDeviceName() {
-        return MyApplication.sp.getString(SAVE_DEVICE_NAME, "0");
+        return MyApplication.sp.getString(SAVE_DEVICE_NAME, "");
     }
 
     /**
@@ -92,7 +92,7 @@ public class SpHelp implements Serializable {
     }
 
     public static String getDeviceMac() {
-        return MyApplication.sp.getString(SAVE_DEVICE_MAC, "0");
+        return MyApplication.sp.getString(SAVE_DEVICE_MAC, "");
     }
 
     /**

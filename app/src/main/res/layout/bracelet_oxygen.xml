@@ -32,15 +32,15 @@
                 android:textColor="#454545"
                 android:textSize="17dp"/>
 
-            <TextView
-                android:id="@+id/tv_time"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:gravity="center_horizontal"
-                android:text="1999-12-31 24:00"
-                android:textColor="#454545"
-                android:textSize="20dp"/>
+            <!--<TextView-->
+                <!--android:id="@+id/tv_time"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginBottom="5dp"-->
+                <!--android:gravity="center_horizontal"-->
+                <!--android:text="1999-12-31 24:00"-->
+                <!--android:textColor="#454545"-->
+                <!--android:textSize="20dp"/>-->
 
             <RelativeLayout
                 android:layout_width="260dp"
@@ -73,7 +73,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
-                        android:text="98"
+                        android:text="0"
                         android:textColor="#e77817"
                         android:textSize="40dp"
                         android:textStyle="bold"/>

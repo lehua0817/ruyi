@@ -30,7 +30,6 @@ public class SportTimeActivity extends Activity {
     TitleView titleview; //标题栏
     TasksCompletedSportTimeView tasksSportTimeview;  //任务完成视图
     TextView tvSportTime;  //运动时间
-    int weight;
     private ModelDao model;
 
     @Override

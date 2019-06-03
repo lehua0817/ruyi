@@ -24,8 +24,8 @@ public class ClockAdapter extends BaseAdapter {
     private Context context;
     private ArrayList<ClockEntity> clockList;
     private ViewHolder holder = null;
-    private int flag;   //这是一个标志位，标志着这个ClockAdapter是被
-    //闹钟使用，睡眠提醒使用，还是服药提醒使用
+    private int flag;
+    //这是一个标志位，标志着这个ClockAdapter是被闹钟使用，睡眠提醒使用，还是服药提醒使用
     public static final int KIND_CLOCK = 0;          //标志着这个ClockAdapter被闹钟设置使用
     public static final int KIND_MEDICINE_CLOCK = 1; //标志着这个ClockAdapter被服药提醒设置使用
     public static final int KIND_SLEEP_CLOCK = 2;  //标志着这个ClockAdapter被睡眠提醒使用
@@ -143,7 +143,6 @@ public class ClockAdapter extends BaseAdapter {
                 } else {
                     holder.cbOpen.setChecked(!isChecked);   //这是还原cbOpen之前的样子
                     MethodUtils.showToast(context, "请先连接蓝牙设备");
-
                 }
             }
         });

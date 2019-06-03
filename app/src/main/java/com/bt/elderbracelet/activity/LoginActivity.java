@@ -70,7 +70,6 @@ public class LoginActivity extends Activity implements View.OnClickListener {
 //                    MethodUtils.showToast(getApplicationContext(), "电话号码不存在");
 //                }
                 SpHelp.saveUserId("13368176003");
-                MyApplication.getInstance().exit(); // 清空所有activity栈
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
                 finish();

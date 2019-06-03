@@ -1,31 +1,23 @@
 package com.bt.elderbracelet.activity;
 
-/**
- * 中华人民共和国万岁，毛主席永垂不朽
- */
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.graphics.BitmapFactory;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.Vibrator;
@@ -41,32 +33,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bonten.ble.application.MyApplication;
-import com.bonten.ble.servise.SampleBleService;
-import com.bt.elderbracelet.adapter.DeviceAdapter;
 import com.bt.elderbracelet.data.ModelDao;
-import com.bt.elderbracelet.entity.BloodOxygen;
-import com.bt.elderbracelet.entity.BloodPressure;
 import com.bt.elderbracelet.entity.DeviceInfo;
-import com.bt.elderbracelet.entity.HeartRate;
 import com.bt.elderbracelet.entity.Register;
-import com.bt.elderbracelet.entity.Sport;
 import com.bt.elderbracelet.entity.others.Event;
 import com.bt.elderbracelet.entity.others.PushMessage;
 import com.bt.elderbracelet.okhttp.HttpRequest;
 import com.bt.elderbracelet.okhttp.URLConstant;
 import com.bt.elderbracelet.protocal.OrderData;
-import com.bt.elderbracelet.tools.BaseUtils;
+import com.bt.elderbracelet.protocal.RemoteServiceCallback;
 import com.bt.elderbracelet.tools.MethodUtils;
 import com.bt.elderbracelet.tools.SpHelp;
-import com.bt.elderbracelet.view.TitleView;
 import com.bttow.elderbracelet.R;
 import com.sxr.sdk.ble.keepfit.aidl.IRemoteService;
 import com.sxr.sdk.ble.keepfit.aidl.IServiceCallback;
@@ -74,18 +57,13 @@ import com.sxr.sdk.ble.keepfit.aidl.IServiceCallback;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import de.greenrobot.event.EventBus;
 
 /**
  * 主界面类
@@ -99,52 +77,20 @@ public class MainActivity extends Activity implements OnClickListener {
 
     private ModelDao modelDao; //数据库处理类
 
-    private String user_id = ""; // 和服务器通信UID 非常重要, 每一条通信指令基本都用到, 注册个人信息的时候可以获取到
+    private String user_id = "";
     private Handler mHandler;
     private Runnable runnable_reconn;   //用于定时重连
     private Runnable runnable_stop_scan;   //用于停止扫描蓝牙
 
     boolean mScaning = false;     //代表当前是否正在搜索蓝牙
-    public static final int SCAN_SECOND = 10 * 1000;
     private AtomicInteger pushCount = new AtomicInteger(10);
     private AlertDialog mConnectingDialog = null;
     private AlertDialog mScanningDialog = null;
     private ArrayList<DeviceInfo> deviceList;
 
-    private boolean flag = false;
-    // false 表示这次搜索蓝牙在 注册时或者解除绑定后的 搜索蓝牙，总之，此时尚未绑定手环
-    // true  表示这次搜索蓝牙操作在 主界面上，是已经绑定了手环
-
-
     private IRemoteService mService;
-    private ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Toast.makeText(MainActivity.this, "Service connected", Toast.LENGTH_SHORT).show();
+    private IServiceCallback mServiceCallback = new RemoteServiceCallback() {
 
-            mService = IRemoteService.Stub.asInterface(service);
-            MyApplication.remoteService = mService;
-            try {
-                mService.registerCallback(mServiceCallback);
-                ensureOpenBluetooth(); //初始化蓝牙适配器 判断是否打开蓝牙
-                connectSavedDevice();
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Toast.makeText(MainActivity.this, "Service disconnected", Toast.LENGTH_SHORT).show();
-            mService = null;
-            MyApplication.remoteService = null;
-        }
-    };
-    private IServiceCallback mServiceCallback = new IServiceCallback.Stub() {
-        /**
-         *  设备连接状态改变
-         *   0:未连接 、1：连接中 、2：已连接
-         */
         @Override
         public void onConnectStateChanged(int state) throws RemoteException {
             Log.v("onConnectStateChanged", "state = " + state);
@@ -155,378 +101,8 @@ public class MainActivity extends Activity implements OnClickListener {
             }
         }
 
-        /**
-         * 扫描蓝牙设备接口
-         */
-        @Override
-        public void onScanCallback(String deviceName, String deviceMacAddress, int rssi)
-                throws RemoteException {
-            Log.v(TAG, String.format("onScanCallback [%1$s][%2$s](%3$d)", deviceName, deviceMacAddress, rssi));
-            addDevice(new DeviceInfo(deviceName, deviceMacAddress));
-        }
-
-        /**
-         * 消息推送回调接口
-         */
-        @Override
-        public void onSetNotify(int result) throws RemoteException {
-            Log.v("onSetNotify", String.valueOf(result));
-        }
-
-        /**
-         *  设置用户信息回调接口
-         *  返回1成功 0失败
-         */
-        @Override
-        public void onSetUserInfo(int result) throws RemoteException {
-            Log.v("onSetUserInfo", "" + result);
-        }
-
-        /**
-         *  绑定服务后会自动异步地从asset目录下读取参数，结果将在onAuthSdkResult回调接口中返回
-         *  返回200成功 0失败
-         */
-        @Override
-        public void onAuthSdkResult(int errorCode) throws RemoteException {
-            Log.v("onAuthSdkResult", errorCode + "");
-        }
-
-        @Override
-        public void onGetDeviceTime(int result, String time) throws RemoteException {
-            Log.v("onGetDeviceTime", String.valueOf(time));
-        }
-
-        /**
-         * 设置设备时间回调接口 刚连上时会自动触发
-         * 返回 1成功 0失败
-         */
-        @Override
-        public void onSetDeviceTime(int arg0) throws RemoteException {
-            Log.v("onSetDeviceTime", arg0 + "");
-        }
-
-        @Override
-        public void onSetDeviceInfo(int arg0) throws RemoteException {
-            Log.v("onSetDeviceInfo", arg0 + "");
-        }
-
-
-        @Override
-        public void onAuthDeviceResult(int arg0) throws RemoteException {
-            Log.v("onAuthDeviceResult", arg0 + "");
-        }
-
-
-        @Override
-        public void onSetAlarm(int arg0) throws RemoteException {
-            Log.v("onSetAlarm", arg0 + "");
-        }
-
-        @Override
-        public void onSendVibrationSignal(int arg0) throws RemoteException {
-            Log.v("onSendVibrationSignal", "result:" + arg0);
-        }
-
-        @Override
-        public void onGetDeviceBatery(int arg0, int arg1)
-                throws RemoteException {
-            Log.v("onGetDeviceBatery", "batery:" + arg0 + ", statu " + arg1);
-        }
-
-
-        @Override
-        public void onSetDeviceMode(int arg0) throws RemoteException {
-            Log.v("onSetDeviceMode", "result:" + arg0);
-        }
-
-        @Override
-        public void onSetHourFormat(int arg0) throws RemoteException {
-            Log.v("onSetHourFormat ", "result:" + arg0);
-
-        }
-
-        @Override
-        public void setAutoHeartMode(int arg0) throws RemoteException {
-            Log.v("setAutoHeartMode ", "result:" + arg0);
-        }
-
-
-        /**
-         * 获取当前运动数据回调接口
-         * 参数分别为当前时间戳,以秒为单位 ,当前步数,当前距离(米),当前卡路里(大卡)，当前睡眠时间（秒），当前运动总时间，当前记步时间
-         有效的返回值根据类型而定
-
-         type = 0  当前运动信息
-         返回有效值为：手环当前时间戳,以秒为单位 ,当前步数,当前距离(米),当前卡路里(大卡)，当前睡眠时间（秒）
-         Type = 1 当前跑步信息
-         返回有效值为：当前时间戳,以秒为单位 当前步数 当前运动总时间 当前记步时间
-
-         */
-        @Override
-        public void onGetCurSportData(int type, long timestamp, int step, int distance,
-                                      int cal, int cursleeptime, int totalrunningtime, int steptime) throws RemoteException {
-            if (type == 0) {
-//                Date date = new Date(timestamp * 1000);
-//                Log.v(TAG, "step = " + step);
-//                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-//                String time = sdf.format(date);
-                System.out.println("运动数据来了");
-
-                Log.v(TAG, "step = " + step);
-                Log.v(TAG, "distance = " + distance);
-                Log.v(TAG, "cal = " + cal);
-                Log.v(TAG, "cursleeptime = " + cursleeptime);
-                Log.v(TAG, "totalrunningtime = " + totalrunningtime);
-                Log.v(TAG, "steptime = " + steptime);
-
-
-                int _step = step;
-                int _distance = distance;
-                int _calories = cal;
-                int _sportTime = 100;
-
-                Sport sport = new Sport();
-                sport.setDate(BaseUtils.getTodayDate());
-                sport.setStep(String.valueOf(_step));
-                sport.setDistance(String.valueOf(_distance));
-                sport.setCalorie(String.valueOf(_calories));
-                sport.setSportTime(String.valueOf(_sportTime));
-
-                boolean flag = false;  //代表数据库中是否已经有今天的数据记录
-
-                ArrayList<Sport> sportList = modelDao.queryAllSport();
-                if (sportList != null && sportList.size() > 0) {
-                    for (int i = 0; i < sportList.size(); i++) {
-                        if (sportList.get(i).getDate().equals(BaseUtils.getTodayDate())) {
-                            sport.setId(sportList.get(i).getId());
-                            flag = true;
-                            break;
-                        }
-                    }
-                }
-                if (flag) {
-                    modelDao.updateSport(sport, BaseUtils.getTodayDate());
-                } else {
-                    modelDao.insertSport(sport);
-                }
-
-                Event event = new Event();
-                event.update_step = true;
-                event.update_distance = true;
-                event.update_caloria = true;
-                event.update_sport_time = true;
-                EventBus.getDefault().post(event);
-
-            }
-        }
-
-        @Override
-        public void onGetSenserData(int result, long timestamp, int heartrate, int sleepstatu)
-                throws RemoteException {
-
-            Event event = null;
-            if (heartrate != 0) {
-                System.out.println("心率来了");
-                HeartRate heartRate = new HeartRate();
-                heartRate.setHeartRate(String.valueOf(heartrate));
-                heartRate.setPreciseDate(BaseUtils.getPreciseDate());
-
-                event = new Event();
-                event.heartRate = heartRate;
-
-                EventBus.getDefault().post(event);
-            }
-        }
-
-
-        @Override
-        public void onGetDataByDay(int type, long timestamp, int step, int heartrate)
-                throws RemoteException {
-            Date date = new Date(timestamp * 1000);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-            String recorddate = sdf.format(date);
-            Log.v("onGetDataByDay", "type:" + type + ",time::" + recorddate + ",step:" + step + ",heartrate:" + heartrate);
-            if (type == 2) {
-//                sleepcount++;
-            }
-        }
-
-        @Override
-        public void onGetDataByDayEnd(int type, long timestamp) throws RemoteException {
-            Date date = new Date(timestamp * 1000);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-            String recorddate = sdf.format(date);
-//            Log.v("onGetDataByDayEnd", "time:" + recorddate + ",sleepcount:" + sleepcount);
-//            sleepcount = 0;
-        }
-
-        @Override
-        public void onSetPhontMode(int arg0) throws RemoteException {
-            Log.v("onSetPhontMode", "result:" + arg0);
-        }
-
-
-        @Override
-        public void onSetSleepTime(int arg0) throws RemoteException {
-            Log.v("onSetSleepTime", "result:" + arg0);
-        }
-
-
-        @Override
-        public void onSetIdleTime(int arg0) throws RemoteException {
-            Log.v("onSetIdleTime", "result:" + arg0);
-        }
-
-
-        @Override
-        public void onGetDeviceInfo(int version, String macaddress, String vendorCode,
-                                    String productCode, int result) throws RemoteException {
-            Log.v("onGetDeviceInfo", "version :" + version + ",macaddress : " + macaddress + ",vendorCode : " + vendorCode + ",productCode :" + productCode + " , CRCresult :" + result);
-
-        }
-
-        @Override
-        public void onGetDeviceAction(int type) throws RemoteException {
-            Log.v("onGetDeviceAction", "type:" + type);
-        }
-
-
-        @Override
-        public void onGetBandFunction(int result, boolean[] results) throws RemoteException {
-            Log.v("onGetBandFunction", "result : " + result + ", results :" + results.length);
-
-//            for(int i = 0; i < results.length; i ++){
-//				Log.v( "onGetBandFunction","result : " + result + ", results :" + i +  " : " + results[i]);
-//			}
-        }
-
-
-        @Override
-        public void onSetLanguage(int arg0) throws RemoteException {
-            Log.v("onSetLanguage", "result:" + arg0);
-        }
-
-
-        @Override
-        public void onSendWeather(int arg0) throws RemoteException {
-            Log.v("onSendWeather", "result:" + arg0);
-        }
-
-
-        @Override
-        public void onSetAntiLost(int arg0) throws RemoteException {
-            Log.v("onSetAntiLost", "result:" + arg0);
-
-        }
-
-
-        @Override
-        public void onReceiveSensorData(int heartrate, int pressureHigh, int pressureLow, int oxygen,
-                                        int arg4) throws RemoteException {
-//            心率, 高血压, 低血压, 血氧, 疲劳值);
-            Event event = null;
-            if (heartrate != 0) {
-                System.out.println("心率来了");
-                HeartRate heartRate = new HeartRate();
-                heartRate.setHeartRate(String.valueOf(heartrate));
-                heartRate.setPreciseDate(BaseUtils.getPreciseDate());
-
-                event = new Event();
-                event.heartRate = heartRate;
-
-                EventBus.getDefault().post(event);
-            }
-            if (pressureHigh != 0 && pressureLow != 0) {
-                System.out.println("血压来了");
-                BloodPressure pressure = new BloodPressure();
-                pressure.setBloodPressureHigh(String.valueOf(pressureHigh));
-                pressure.setBloodPressureLow(String.valueOf(pressureLow));
-                pressure.setPreciseDate(BaseUtils.getPreciseDate());
-                modelDao.insertBloodPressure(pressure);
-
-                event = new Event();
-                event.pressure = pressure;
-                EventBus.getDefault().post(event);
-            }
-
-            if (oxygen != 0) {
-                System.out.println("血氧来了");
-                BloodOxygen bloodOxygen = new BloodOxygen();
-                bloodOxygen.setBloodOxygen(String.valueOf(oxygen));
-                bloodOxygen.setPreciseDate(BaseUtils.getPreciseDate());
-
-                event = new Event();
-                event.oxygen = bloodOxygen;
-                EventBus.getDefault().post(event);
-            }
-
-        }
-
-
-        @Override
-        public void onSetBloodPressureMode(int arg0) throws RemoteException {
-            Log.v("onSetBloodPressureMode", "result:" + arg0);
-        }
-
-
-        @Override
-        public void onGetMultipleSportData(int flag, String recorddate, int mode, int value)
-                throws RemoteException {
-//            Date date = new Date(timestamp * 1000);
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-//            String recorddate = sdf.format(date);
-            Log.v("onGetMultipleSportData", "flag:" + flag + " , mode :" + mode + " recorddate:" + recorddate + " , value :" + value);
-        }
-
-
-        @Override
-        public void onSetGoalStep(int result) throws RemoteException {
-            Log.v("onSetGoalStep", "result:" + result);
-        }
-
-
-        @Override
-        public void onSetDeviceHeartRateArea(int result) throws RemoteException {
-            Log.v("onSetDeviceHeartRate", "result:" + result);
-        }
-
-
-        @Override
-        public void onSensorStateChange(int type, int state)
-                throws RemoteException {
-
-            Log.v("onSensorStateChange", "type:" + type + " , state : " + state);
-        }
-
-
-        @Override
-        public void onReadCurrentSportData(int mode, String time, int step,
-                                           int cal) throws RemoteException {
-
-            Log.v("onReadCurrentSportData", "mode:" + mode + " , time : " + time + " , step : " + step + " cal :" + cal);
-        }
-
-        @Override
-        public void onGetOtaInfo(boolean isUpdate, String version, String path) throws RemoteException {
-            Log.v("onGetOtaInfo", "isUpdate " + isUpdate + " version " + version + " path " + path);
-        }
-
-        @Override
-        public void onGetOtaUpdate(int step, int progress) throws RemoteException {
-            Log.v("onGetOtaUpdate", "step " + step + " progress " + progress);
-        }
-
-        @Override
-        public void onSetDeviceCode(int result) throws RemoteException {
-            Log.v("onSetDeviceCode", "result " + result);
-        }
-
-        @Override
-        public void onGetDeviceCode(byte[] bytes) throws RemoteException {
-            Log.v("onGetDeviceCode", "bytes " + BaseUtils.byteArrayToString(bytes));
-        }
-
     };
+
 
     /**
      * 手环和手机连接成功后的动作
@@ -534,9 +110,9 @@ public class MainActivity extends Activity implements OnClickListener {
     private void doAfterConnect() {
         MyApplication.isConnected = true;
         closeAlarm();
-        if (runnable_reconn != null) {
-            mHandler.removeCallbacks(runnable_reconn);
-        }
+//        if (runnable_reconn != null) {
+//            mHandler.removeCallbacks(runnable_reconn);
+//        }
         if (mConnectingDialog != null && mConnectingDialog.isShowing()) {
             mConnectingDialog.dismiss();
             mConnectingDialog = null;
@@ -628,10 +204,9 @@ public class MainActivity extends Activity implements OnClickListener {
     }
 
     private void callgetCurSportData() {
-        int result;
         if (mService != null) {
             try {
-                result = mService.getCurSportData();
+                mService.getCurSportData();
             } catch (RemoteException e) {
                 e.printStackTrace();
                 Toast.makeText(this, "Remote call error!", Toast.LENGTH_SHORT).show();
@@ -646,172 +221,69 @@ public class MainActivity extends Activity implements OnClickListener {
         System.out.println("我是onCreate，我被执行了");
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        //注册EventBus
-        EventBus.getDefault().register(this);
+        setContentView(R.layout.main_activity);
         modelDao = new ModelDao(getApplicationContext());
+        initUI();
+        MyApplication.getInstance().addActivity(MainActivity.this);
+        taskGetPush();//启动接收推送消息的线程
 
-        if (deviceList == null) {
-            deviceList = new ArrayList<>();
+        mService = MyApplication.remoteService;
+        try {
+            mService.registerCallback(mServiceCallback);
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
-        device_adapter = new DeviceAdapter(getApplicationContext(), deviceList);
-
-        if (!TextUtils.isEmpty(SpHelp.getUserId())) {
-            user_id = SpHelp.getUserId();
-        }
-        initHandlerAndRunnable();
-
-        // 检查注册信息以及手环绑定信息
-        if (!TextUtils.isEmpty(user_id) && !TextUtils.isEmpty(SpHelp.getDeviceMac())) {
-            setContentView(R.layout.main_activity);
-            initUI();
-            MyApplication.getInstance().addActivity(MainActivity.this);
-            taskGetPush();//启动接收推送消息的线程
-            flag = true;
-            initServiceAndReceiver(); //初始化蓝牙服务,各种UUID以及注册广播
-        } else {
-            //如果Registre表中数据为空，即现在这台设备是陌生的设备，那么先显示设备绑定界面
-            //即搜索附近的蓝牙BLE设备
-            //绑定设备
-            setContentView(R.layout.bracelet_search_ble);
-            MyApplication.getInstance().addActivity(this);
-
-            flag = false;
-            ensureOpenBluetooth();
-            startScanDevice();
-
-            titleView = (TitleView) findViewById(R.id.titleview);
-            titleView.setbg(R.drawable.register_titlebg);
-            titleView.setTitle(R.string.bind_device);
-            ListView lv_device_list = (ListView) findViewById(R.id.lv_device_list);
-            lv_device_list.setAdapter(device_adapter);
-            titleView.right(R.string.refresh, new TitleView.onSetLister() {
-                @Override
-                public void onClick(View button) {
-                    if (null != deviceList && deviceList.size() > 0) {
-                        deviceList.clear();
-                        device_adapter.notifyDataSetChanged();
-                    }
-                }
-            });
-
-            //搜索出一个列表,选中相应的手环蓝牙地址MAC
-            lv_device_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    String mac = deviceList.get(i).getMac();
-                    String name = deviceList.get(i).getName();
-                    SpHelp.saveDeviceMac(mac);
-                    SpHelp.saveDeviceName(name);
-                    stopScanDevice();  //当你都选择了一个设备以后，那就不需要再继续扫描附近的设备了
-                    //选中某个MAC后 进入用户注册信息界面;
-                    if (!TextUtils.isEmpty(SpHelp.getUserId())) {
-                        //会跳转到这个页面只有两种情况，要么是初次使用软件，
-                        //要么是解除绑定后跳转到这个页面
-                        //这种情况是解除绑定
-                        setContentView(R.layout.main_activity);
-                        initUI();
-                        MyApplication.getInstance().addActivity(MainActivity.this);
-                        taskGetPush();//启动接收推送消息的线程
-                        flag = true;
-                        initServiceAndReceiver(); //初始化蓝牙服务,各种UUID以及注册广播
-                    } else {    //这种情况是 初次使用软件，则需要注册
-                        Intent intent1 = new Intent(MainActivity.this, RegisterActivity.class);
-                        startActivity(intent1);
-                        MethodUtils.showToast(getApplicationContext(), "绑定设备成功");
-                        finish();
-                    }
-                }
-            });
-        }
+//        initHandlerAndRunnable();
+        initSmsReceiver();
+        connectSavedDevice();
     }
 
-
-    private void startScanDevice() {
-
-        if (mService != null) {
-            try {
-                if (mScaning) {
-                    stopScanDevice();
-                }
-                mScaning = true;
-                mService.scanDevice(true);
-                if (mScanningDialog != null && mScanningDialog.isShowing()) {
-                    mScanningDialog.dismiss();
-                    mScanningDialog = null;
-                }
-                mScanningDialog = MethodUtils.createDialog(MainActivity.this, "正在搜索附近手环");
-                mScanningDialog.show();
-            } catch (RemoteException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Remote call error!", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            Toast.makeText(this, "Service is not available yet!", Toast.LENGTH_SHORT).show();
-        }
-
-
-    }
-
-    private void stopScanDevice() {
-
-        if (mService != null) {
-            try {
-                mScaning = false;
-                mService.scanDevice(false);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Remote call error!", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            Toast.makeText(this, "Service is not available yet!", Toast.LENGTH_SHORT).show();
-        }
-    }
 
     /**
      * 初始化了一个Handler、Runnable，但是Runnable并没有执行，只是先初始化，等待之后被执行
      */
-    public void initHandlerAndRunnable() {
-        mHandler = new Handler();
-        runnable_reconn = new Runnable() {
-            //即每15秒 扫描一次附近的蓝牙设备
-            @Override
-            public void run() {
-                connectSavedDevice();
-                mHandler.postDelayed(runnable_reconn, 1000 * 5);
-            }
-        };
-
-        runnable_stop_scan = new Runnable() {
-            @Override
-            public void run() {
-                if (mScaning) {
-                    stopScanDevice();
-                    if (mScanningDialog != null && mScanningDialog.isShowing()) {
-                        mScanningDialog.dismiss();
-                    }
-
-                    AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this)
-                            .setTitle("很遗憾，没有搜索到可用信号")
-                            .setIcon(R.drawable.warning)
-                            .setMessage("是否重新搜索?")
-                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    startScanDevice();
-                                }
-                            })
-                            .setNegativeButton("取消", null).create();
-                    System.out.println("deviceList.size() :" + deviceList.size());
-                    if (deviceList.size() == 0) {
-                        alertDialog.show();
-                    }
-                    if ((flag == true) && (!deviceList.contains(SpHelp.getDeviceMac()))) {
-                        alertDialog.show();
-                    }
-                }
-            }
-        };
-    }
+//    public void initHandlerAndRunnable() {
+//        mHandler = new Handler();
+//        runnable_reconn = new Runnable() {
+//            //即每15秒 扫描一次附近的蓝牙设备
+//            @Override
+//            public void run() {
+//                connectSavedDevice();
+//                mHandler.postDelayed(runnable_reconn, 1000 * 5);
+//            }
+//        };
+//
+//        runnable_stop_scan = new Runnable() {
+//            @Override
+//            public void run() {
+//                if (mScaning) {
+//                    stopScanDevice();
+//                    if (mScanningDialog != null && mScanningDialog.isShowing()) {
+//                        mScanningDialog.dismiss();
+//                    }
+//
+//                    AlertDialog alertDialog = new AlertDialog.Builder(MainActivity2.this)
+//                            .setTitle("很遗憾，没有搜索到可用信号")
+//                            .setIcon(R.drawable.warning)
+//                            .setMessage("是否重新搜索?")
+//                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+//                                @Override
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    connectSavedDevice();
+//                                }
+//                            })
+//                            .setNegativeButton("取消", null).create();
+//                    System.out.println("deviceList.size() :" + deviceList.size());
+//                    if (deviceList.size() == 0) {
+//                        alertDialog.show();
+//                    }
+//                    if ((isBound == true) && (!deviceList.contains(SpHelp.getDeviceMac()))) {
+//                        alertDialog.show();
+//                    }
+//                }
+//            }
+//        };
+//    }
 
 
     //初始化蓝牙适配器 判断是否打开蓝牙
@@ -827,10 +299,7 @@ public class MainActivity extends Activity implements OnClickListener {
         }
     }
 
-    public void initServiceAndReceiver() {
-        Intent intent = new Intent(MainActivity.this, SampleBleService.class);
-        bindService(intent, mServiceConnection, BIND_AUTO_CREATE);
-
+    public void initSmsReceiver() {
         IntentFilter smsIntentFilter = new IntentFilter();
         // 接收短信的广播
         smsIntentFilter.addAction("android.provider.Telephony.SMS_RECEIVED");
@@ -842,7 +311,6 @@ public class MainActivity extends Activity implements OnClickListener {
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")) {
                 System.out.println("来短信了");
-
                 if (SpHelp.getPhoneMsgRemind()) {
                     callNotify(OrderData.NOTIFICATION_SMS, "", "");
                 }
@@ -874,25 +342,6 @@ public class MainActivity extends Activity implements OnClickListener {
         manager.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE);
     }
 
-
-    //    /**
-//     * 开启(关闭)蓝牙扫描
-//     *
-//     * @param enable
-//     */
-//    private void scanBleDevice(boolean enable) {
-//        if (enable) {
-//            mScaning = true;
-//            mHandler.postDelayed(runnable_stop_scan, SCAN_SECOND);
-//            mBluetoothAdapter.startLeScan(mLeScanCallback);
-//        } else {
-//            mScaning = false;
-//            if (runnable_stop_scan != null) {
-//                mHandler.removeCallbacks(runnable_stop_scan);
-//            }
-//            mBluetoothAdapter.stopLeScan(mLeScanCallback);
-//        }
-//    }
     public void syncHistoryData() {
         if (!MyApplication.isConnected) {
             MethodUtils.showToast(getApplicationContext(), "请先连接蓝牙设备");
@@ -983,27 +432,6 @@ public class MainActivity extends Activity implements OnClickListener {
         }
     }
 
-    public void addDevice(DeviceInfo info) {
-        if (deviceList == null) {
-            return;
-        }
-        boolean is_exist = false;
-        if (deviceList.size() > 0) {
-            for (int i = 0; i < deviceList.size(); i++) {
-                if (deviceList.get(i).getMac().equals(info.getMac())) {
-                    //如果刚刚扫描到的设备Mac和deviceInfos的设备相符合
-                    //则说明该设备已经保存过
-                    is_exist = true;
-                    break;
-                }
-            }
-        }
-        if (!is_exist) {
-            //如果不存在，则把新设备添加到我们的deviceInfos列表中
-            deviceList.add(info);
-            device_adapter.changeData(deviceList);
-        }
-    }
 
     @Override
     protected void onRestart() {
@@ -1027,12 +455,6 @@ public class MainActivity extends Activity implements OnClickListener {
     protected void onDestroy() {
         super.onDestroy();
 
-        EventBus.getDefault().unregister(this);
-
-        if (MyApplication.isConnected) {
-            unbindService(mServiceConnection);
-        }
-
         if (timer != null) {
             timer.cancel();
         }
@@ -1049,11 +471,7 @@ public class MainActivity extends Activity implements OnClickListener {
     private AlertDialog mAlertDialog = null;//报警弹窗
     private Vibrator vibrator;//报警震动
     private Ringtone rt;//报警铃声
-
-    private TitleView titleView; //标题封装类
     private TextView tv_name; //用户姓名
-    private DeviceAdapter device_adapter;
-
     private ViewPager vpViewPager = null;
     private ArrayList<View> views;
     private ImageView[] indicators = null; //底部滑动 圈圈
