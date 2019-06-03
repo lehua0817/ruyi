@@ -149,12 +149,14 @@
     <string name="sleep_remind_detail">睡眠提醒详情</string>
     <string name="save_sedentary">保存</string>
     <string name="matters_name_time">提醒时间 :</string>
-    <string name="clock_switch">闹钟开关 :</string>
+    <string name="clock_switch">睡眠闹钟开关 :</string>
     <string name="clock_shock">手机震动 :</string>
     <string name="clock_music">音乐提醒 :</string>
     <string name="remind_frequency">提醒频率 :</string>
-    <string name="sleep_start_time">计划入睡时间 :</string>
-    <string name="sleep_end_time">计划醒来时间 :</string>
+    <string name="sleep_mid_start_time">午睡开始时间 :</string>
+    <string name="sleep_mid_end_time">午睡结束时间 :</string>
+    <string name="sleep_night_start_time">晚上入睡时间 :</string>
+    <string name="sleep_night_end_time">早上醒来时间 :</string>
     <string name="weeks_monday">星期一</string>
     <string name="weeks_tuesday">星期二</string>
     <string name="weeks_wednesday">星期三</string>

@@ -263,6 +263,8 @@ public class SpHelp implements Serializable {
     public static final String SLEEP_CLOCK_FOUR = "sleep_clock_four";
     public static final String SLEEP_CLOCK_FIVE = "sleep_clock_five";
 
+    public static final String SLEEP_CLOCK = "sleep_clock";
+
 
     public static String getSleepClockKey(int position) {
         String sleepClockKey = null;

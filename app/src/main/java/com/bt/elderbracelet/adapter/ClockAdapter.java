@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import com.bonten.ble.application.MyApplication;
 import com.bt.elderbracelet.entity.ClockEntity;
-import com.bt.elderbracelet.entity.SleepClock;
 import com.bt.elderbracelet.protocal.RemoteServiceCallback;
 import com.bt.elderbracelet.tools.BaseUtils;
 import com.bt.elderbracelet.tools.MethodUtils;
@@ -110,16 +109,7 @@ public class ClockAdapter extends BaseAdapter {
 
         final ClockEntity clockEntity = clockList.get(position);
 
-        if (flag == KIND_SLEEP_CLOCK) {
-            final SleepClock sleepClock = (SleepClock) clockEntity;
-            StringBuilder builder = new StringBuilder("");
-            builder.append(BaseUtils.timeConversion(sleepClock.hour, sleepClock.minute));
-            builder.append(" --> ");
-            builder.append(BaseUtils.timeConversion(sleepClock.endHour, sleepClock.endMinute));
-            holder.tvTime.setText(builder.toString());
-        } else {
-            holder.tvTime.setText(BaseUtils.timeConversion(clockEntity.hour, clockEntity.minute));
-        }
+        holder.tvTime.setText(BaseUtils.timeConversion(clockEntity.hour, clockEntity.minute));
 
         if (clockList.get(position).isSingle) {
             holder.tvWeek.setText("单次提醒");
@@ -171,21 +161,6 @@ public class ClockAdapter extends BaseAdapter {
 //                                clockEntity.hour,
 //                                clockEntity.minute));
                         SpHelp.saveObject(SpHelp.getMedicineClockKey(position), clockEntity);
-                    }
-                    if (flag == KIND_SLEEP_CLOCK) {
-                        final SleepClock sleepClock = (SleepClock) clockEntity;
-                        sleepClock.isOpen = isChecked ? 1 : 0;
-                        // TODO: 2019/6/1
-//                        BleService.sendCommand(OrderData.getSleepClockOrder(
-//                                position + 1,
-//                                sleepClock.isOpen,
-//                                sleepClock.whichDays,
-//                                sleepClock.isRepeatOnce,
-//                                sleepClock.hour,
-//                                sleepClock.minute,
-//                                sleepClock.endHour,
-//                                sleepClock.endMinute));
-                        SpHelp.saveObject(SpHelp.getSleepClockKey(position), sleepClock);
                     }
                     notifyDataSetChanged();
 

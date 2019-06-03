@@ -13,31 +13,32 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bonten.ble.application.MyApplication;
-import com.bt.elderbracelet.tools.MethodUtils;
 import com.bt.elderbracelet.tools.SpHelp;
 import com.bt.elderbracelet.view.TitleView;
 import com.bttow.elderbracelet.R;
+import com.sxr.sdk.ble.keepfit.aidl.IRemoteService;
 
 public class SettingsActivity extends Activity implements View.OnClickListener {
 
     TitleView titleView;
     TextView textMac;
+    TextView textName;
     LinearLayout ll_restart, ll_resetPwd, ll_unlock, ll_logout;
+    private IRemoteService mService;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_settings);
         MyApplication.getInstance().addActivity(this);
+        mService = MyApplication.remoteService;
+
         initView();
         initListener();
-        initData();
     }
 
-    private void initView()
-    {
+    private void initView() {
         titleView = (TitleView) findViewById(R.id.titleview);
         titleView.setTitle(R.string.display_show);
         titleView.setcolor("#495677");
@@ -45,13 +46,15 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
 
         titleView.setBack(R.drawable.steps_back, new TitleView.onBackLister() {
             @Override
-            public void onClick(View button)
-            {
+            public void onClick(View button) {
                 finish();
             }
         });
 
         textMac = (TextView) findViewById(R.id.text_mac);
+        textName = (TextView) findViewById(R.id.text_name);
+        textMac.setText(SpHelp.getDeviceMac());
+        textName.setText(SpHelp.getDeviceName());
 
         ll_restart = (LinearLayout) findViewById(R.id.ll_restart);
         ll_unlock = (LinearLayout) findViewById(R.id.ll_unlock);
@@ -59,33 +62,18 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
         ll_resetPwd = (LinearLayout) findViewById(R.id.ll_resetPwd);
     }
 
-    private void initListener()
-    {
+    private void initListener() {
         ll_restart.setOnClickListener(this);
         ll_unlock.setOnClickListener(this);
         ll_logout.setOnClickListener(this);
         ll_resetPwd.setOnClickListener(this);
     }
 
-    private void initData()
-    {
-        if (!MyApplication.isConnected) {
-            MethodUtils.showToast(SettingsActivity.this, "尚未连接手环");
-            finish();
-            Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
-            startActivity(intent);
-            overridePendingTransition(R.anim.move_left_in_activity, R.anim.move_right_out_activity);
-            return;
-        }
-        textMac.setText(SpHelp.getDeviceMac());
-    }
-
     AlertDialog.Builder builder = null;
     AlertDialog dialog = null;
 
     @Override
-    public void onClick(View v)
-    {
+    public void onClick(View v) {
         switch (v.getId()) {
 //            case R.id.ll_restart:
 //                if (!MyApplication.isConnected) {
@@ -125,20 +113,18 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
                 builder.setTitle("请确定是否要取消设备绑定？");
                 builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
+                    public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                         SpHelp.saveDeviceMac("");
                         MyApplication.getInstance().exit();
-                        //finish();
-                        Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
+                        callRemoteDisconnect();
+                        Intent intent = new Intent(SettingsActivity.this, BindActivity.class);
                         startActivity(intent);
                     }
                 });
                 builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
+                    public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
                 });
@@ -151,8 +137,7 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
                 builder.setTitle("请确定是否要注销登入？");
                 builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
+                    public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                         SpHelp.saveUserId("");
                         SpHelp.saveDeviceMac("");
@@ -171,8 +156,7 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
                 });
                 builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
+                    public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
                 });
@@ -191,9 +175,9 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
 
     private void callRemoteDisconnect() {
 
-        if (MyApplication.remoteService != null) {
+        if (mService != null) {
             try {
-                MyApplication.remoteService .disconnectBt(true);
+                mService.disconnectBt(true);
             } catch (RemoteException e) {
                 e.printStackTrace();
                 Toast.makeText(this, "Remote call error!", Toast.LENGTH_SHORT).show();

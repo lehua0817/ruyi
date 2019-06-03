@@ -8,6 +8,9 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.RemoteException;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -16,15 +19,17 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bonten.ble.application.MyApplication;
+import com.bt.elderbracelet.protocal.RemoteServiceCallback;
 import com.bt.elderbracelet.tools.MethodUtils;
 import com.bt.elderbracelet.tools.SpHelp;
 import com.bt.elderbracelet.view.TitleView;
 import com.bt.elderbracelet.view.TitleView.onBackLister;
 import com.bttow.elderbracelet.R;
-
-import de.greenrobot.event.EventBus;
+import com.sxr.sdk.ble.keepfit.aidl.IRemoteService;
+import com.sxr.sdk.ble.keepfit.aidl.IServiceCallback;
 
 /**
  * 提醒类
@@ -45,18 +50,52 @@ public class RemindActivity extends Activity implements OnClickListener, OnCheck
     private int index = 0;
     private TextView tv_version_name;
 
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == 1) {
+                MethodUtils.showToast(RemindActivity.this, "设置成功");
+                //将新的睡眠提醒数据保存在SharePreference中
+                if (index == 0) {
+                    SpHelp.saveFdRemind(SpHelp.FD_REMIND_CLOSE);
+                } else if (index == 1) {
+                    SpHelp.saveFdRemind(SpHelp.FD_REMIND_OPEN);
+                }
+            } else {
+                MethodUtils.showToast(RemindActivity.this, "设置失败");
+            }
+        }
+    };
+
+
+    private IRemoteService mService;
+    private IServiceCallback mServiceCallback = new RemoteServiceCallback() {
+
+        @Override
+        public void onSetAntiLost(int result) throws RemoteException {
+            Message msg = Message.obtain();
+            msg.what = result;
+            mHandler.sendMessage(msg);
+        }
+    };
+
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.bracelet_remind);
         MyApplication.getInstance().addActivity(this);
-        init();
+        mService = MyApplication.remoteService;
+        try {
+            mService.registerCallback(mServiceCallback);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        initView();
     }
 
-    private void init()
-    {
+    private void initView() {
         titleView = (TitleView) findViewById(R.id.titleview);
         titleView.setTitle(R.string.remind_title);
         titleView.setcolor("#495677");
@@ -64,8 +103,7 @@ public class RemindActivity extends Activity implements OnClickListener, OnCheck
         //		titleView.titleImg(R.drawable.heart_titleimg);
         titleView.setBack(R.drawable.steps_back, new onBackLister() {
             @Override
-            public void onClick(View button)
-            {
+            public void onClick(View button) {
                 finish();
             }
         });
@@ -109,8 +147,7 @@ public class RemindActivity extends Activity implements OnClickListener, OnCheck
     }
 
     @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-    {
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         switch (buttonView.getId()) {
             case R.id.cb_phone_call_remind://来电提醒
                 SpHelp.savePhoneCallRemind(isChecked);
@@ -124,25 +161,24 @@ public class RemindActivity extends Activity implements OnClickListener, OnCheck
     }
 
     @Override
-    public void onClick(View v)
-    {
+    public void onClick(View v) {
         Intent intent = null;
         switch (v.getId()) {
             case R.id.ll_clock_remind://进入闹钟提醒设置界面
                 intent = new Intent(getApplicationContext(), ClockRemindActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.ll_medicine_remind://进入吃药提醒设置界面
-                intent = new Intent(getApplicationContext(), MedicineRemindActivity.class);
-                startActivity(intent);
-                break;
+//            case R.id.ll_medicine_remind://进入吃药提醒设置界面
+//                intent = new Intent(getApplicationContext(), MedicineRemindActivity.class);
+//                startActivity(intent);
+//                break;
             case R.id.ll_sedentary_remind: //进入久坐提醒设置界面
                 intent = new Intent(getApplicationContext(), SitRemindActivity.class);
                 startActivity(intent);
                 break;
 
             case R.id.ll_sleep_remind:  //进入睡眠提醒设置界面
-                intent = new Intent(getApplicationContext(), SleepRemindActicvity.class);
+                intent = new Intent(getApplicationContext(), SleepRemindActivity.class);
                 startActivity(intent);
                 break;
             case R.id.ll_set_device_img:  //进入功能设置界面
@@ -168,34 +204,19 @@ public class RemindActivity extends Activity implements OnClickListener, OnCheck
     /**
      * 弹出单选框
      */
-    public void setAlertDialog()
-    {
+    public void setAlertDialog() {
         String[] stringArray = new String[]{"关闭防丢提醒", "开启防丢提醒"};
         if (builder == null) {
             builder = new AlertDialog.Builder(RemindActivity.this);
             builder.setTitle(getResources().getString(R.string.fd_remind));
-            builder.setSingleChoiceItems(stringArray, SpHelp.getFdRemind(),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which)
-                        {
-                            index = which;              //即 index = 0;关闭防丢提醒,index = 1，开启防丢提醒
-                        }
-                    });
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which)
-                {
+                public void onClick(DialogInterface dialog, int which) {
                     if (!MyApplication.isConnected) {
                         MethodUtils.showToast(getApplicationContext(), "请先连接蓝牙设备");
                         finish();
                     } else {
-
-                        if (index == 0) {
-                            SpHelp.saveFdRemind(SpHelp.FD_REMIND_CLOSE);
-                        } else if (index == 1) {
-                            SpHelp.saveFdRemind(SpHelp.FD_REMIND_OPEN);
-                        }
+                        callRemoteSetAntiLost(index > 0);
                     }
                     dialog.dismiss();
                 }
@@ -203,8 +224,7 @@ public class RemindActivity extends Activity implements OnClickListener, OnCheck
             builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
 
                 @Override
-                public void onClick(DialogInterface dialog, int which)
-                {
+                public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
                 }
             });
@@ -212,28 +232,24 @@ public class RemindActivity extends Activity implements OnClickListener, OnCheck
         builder.setSingleChoiceItems(stringArray, SpHelp.getFdRemind(),
                 new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        index = which;
+                    public void onClick(DialogInterface dialog, int which) {
+                        index = which;              //即 index = 0;关闭防丢提醒,index = 1，开启防丢提醒
                     }
                 });
         builder.show();
     }
 
     //版本名
-    public static String getVersionName(Context context)
-    {    //获取软件版本号
+    public static String getVersionName(Context context) {    //获取软件版本号
         return getPackageInfo(context).versionName;
     }
 
-    private static PackageInfo getPackageInfo(Context context)
-    {      //PackageInfo 是系统自定义的类，表示 AndroidManifest中所有数据信息
+    private static PackageInfo getPackageInfo(Context context) {      //PackageInfo 是系统自定义的类，表示 AndroidManifest中所有数据信息
         PackageInfo pi = null;
         try {
             PackageManager pm = context.getPackageManager();
             pi = pm.getPackageInfo(context.getPackageName(),
                     PackageManager.GET_CONFIGURATIONS);
-
             return pi;
         } catch (Exception e) {
             e.printStackTrace();
@@ -242,12 +258,17 @@ public class RemindActivity extends Activity implements OnClickListener, OnCheck
         return pi;
     }
 
-    @Override
-    protected void onDestroy()
-    {
-        // TODO Auto-generated method stub
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
-
+    private void callRemoteSetAntiLost(boolean openAntiLost) {
+        if (mService != null) {
+            try {
+                mService.setAntiLost(openAntiLost);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Remote call error!", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "Service is not available yet!", Toast.LENGTH_SHORT).show();
+        }
     }
+
 }

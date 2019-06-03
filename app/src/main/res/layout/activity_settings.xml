@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@color/white"
-              android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
 
     <com.bt.elderbracelet.view.TitleView
         android:id="@+id/titleview"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="2dp"
-        android:background="@color/line_color"/>
+        android:background="@color/line_color" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -28,7 +28,46 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:padding="4dp"
-            android:src="@drawable/mac"/>
+            android:src="@drawable/mac" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="5dp"
+            android:gravity="center_vertical"
+            android:text="手环名称："
+            android:textSize="25sp" />
+
+        <TextView
+            android:id="@+id/text_name"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:textSize="15sp" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="2dp"
+        android:background="@color/line_color" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:padding="4dp"
+            android:src="@drawable/mac" />
 
         <TextView
             android:id="@+id/textView2"
@@ -37,7 +76,7 @@
             android:layout_marginLeft="5dp"
             android:gravity="center_vertical"
             android:text="Mac地址："
-            android:textSize="25sp"/>
+            android:textSize="25sp" />
 
         <TextView
             android:id="@+id/text_mac"
@@ -46,7 +85,7 @@
             android:layout_marginLeft="5dp"
             android:layout_weight="1"
             android:gravity="center_vertical"
-            android:textSize="15sp"/>
+            android:textSize="15sp" />
 
     </LinearLayout>
 
@@ -54,7 +93,8 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="2dp"
-        android:background="@color/line_color"/>
+        android:background="@color/line_color"
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/ll_restart"
@@ -62,14 +102,15 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:padding="4dp"
-            android:src="@drawable/restart"/>
+            android:src="@drawable/restart" />
 
         <TextView
             android:layout_width="0dp"
@@ -78,14 +119,14 @@
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:text="重启设备"
-            android:textSize="25sp"/>
+            android:textSize="25sp" />
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="2dp"
-        android:background="@color/line_color"/>
+        android:background="@color/line_color" />
 
     <LinearLayout
         android:id="@+id/ll_resetPwd"
@@ -101,7 +142,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:padding="4dp"
-            android:src="@drawable/reset_pwd"/>
+            android:src="@drawable/reset_pwd" />
 
         <TextView
             android:layout_width="0dp"
@@ -110,14 +151,14 @@
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:text="修改密码"
-            android:textSize="25sp"/>
+            android:textSize="25sp" />
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="2dp"
-        android:background="@color/line_color"/>
+        android:background="@color/line_color" />
 
     <LinearLayout
         android:id="@+id/ll_unlock"
@@ -132,7 +173,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:padding="4dp"
-            android:src="@drawable/unlock"/>
+            android:src="@drawable/unlock" />
 
         <TextView
             android:layout_width="0dp"
@@ -141,7 +182,7 @@
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:text="解除绑定"
-            android:textSize="25sp"/>
+            android:textSize="25sp" />
     </LinearLayout>
 
 
@@ -149,7 +190,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="2dp"
-        android:background="@color/line_color"/>
+        android:background="@color/line_color" />
 
     <LinearLayout
         android:id="@+id/ll_logout"
@@ -164,7 +205,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:padding="4dp"
-            android:src="@drawable/logout"/>
+            android:src="@drawable/logout" />
 
         <TextView
             android:layout_width="0dp"
@@ -173,7 +214,7 @@
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:text="注销登入"
-            android:textSize="25sp"/>
+            android:textSize="25sp" />
     </LinearLayout>
 
 

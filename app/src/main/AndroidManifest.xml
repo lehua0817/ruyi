@@ -160,9 +160,6 @@
         <activity
             android:name="com.bt.elderbracelet.activity.ClockRemindDetailsActivity"
             android:screenOrientation="portrait" />
-        <activity
-            android:name="com.bt.elderbracelet.activity.MedicineRemindDetailsActivity"
-            android:screenOrientation="portrait" />
         <!--
          <activity
              android:name="com.bt.elderbracelet.activity.MedicineRemindDetailsActivity"
@@ -173,10 +170,7 @@
             android:name="com.bt.elderbracelet.activity.SitRemindActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.bt.elderbracelet.activity.SleepRemindActicvity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="com.bt.elderbracelet.activity.SleepRemindDetailsActivity"
+            android:name="com.bt.elderbracelet.activity.SleepRemindActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name="com.bt.elderbracelet.activity.SettingsActivity"

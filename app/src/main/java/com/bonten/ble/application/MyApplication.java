@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.bt.elderbracelet.activity.EmptyActivity;
 import com.bt.elderbracelet.data.ModelDao;
 import com.bt.elderbracelet.okhttp.HttpRequest;
 import com.bt.elderbracelet.okhttp.URLConstant;
@@ -146,7 +147,10 @@ public class MyApplication extends Application {
 
     public void exit() {
         for (Activity activity : activityList) {
-            activity.finish();
+            // 这里之所以要保留EmptyActivity，是因为它连接了SampleBleService，这个不能断开
+            if (!activity.getClass().equals(EmptyActivity.class)) {
+                activity.finish();
+            }
         }
     }
 

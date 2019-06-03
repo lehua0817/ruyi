@@ -12,16 +12,12 @@ import android.widget.ListView;
 import com.bonten.ble.application.MyApplication;
 import com.bt.elderbracelet.adapter.ClockAdapter;
 import com.bt.elderbracelet.entity.ClockEntity;
-import com.bt.elderbracelet.entity.others.Event;
-import com.bt.elderbracelet.tools.MethodUtils;
 import com.bt.elderbracelet.tools.SpHelp;
 import com.bt.elderbracelet.view.TitleView;
 import com.bt.elderbracelet.view.TitleView.onBackLister;
 import com.bttow.elderbracelet.R;
 
 import java.util.ArrayList;
-
-import de.greenrobot.event.EventBus;
 
 /**
  * 闹钟提醒界面
@@ -36,7 +32,6 @@ public class ClockRemindActivity extends Activity {
     private ClockAdapter clockAdapter = null;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -44,7 +39,6 @@ public class ClockRemindActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.bracelet_clock_remind);
         MyApplication.getInstance().addActivity(this);
-        EventBus.getDefault().register(this);
         initView();
     }
 
@@ -114,22 +108,4 @@ public class ClockRemindActivity extends Activity {
         listview.setAdapter(clockAdapter);
     }
 
-    public void onEventMainThread(Event event)
-    {
-        if (event.update_clock) {
-            if (MyApplication.cb_switch) {
-                MethodUtils.showToast(getApplicationContext(), "闹钟已打开!");
-            } else {
-                MethodUtils.showToast(getApplicationContext(), "闹钟已关闭!");
-            }
-        }
-    }
-
-
-    @Override
-    protected void onDestroy()
-    {
-        EventBus.getDefault().unregister(this);
-        super.onDestroy();
-    }
 }
