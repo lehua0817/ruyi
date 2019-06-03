@@ -70,6 +70,19 @@ public class SpHelp implements Serializable {
 
 
     /**
+     * 保存蓝牙设备名字;
+     */
+    public static final String SAVE_DEVICE_NAME = "save_device_name";
+
+    public static void saveDeviceName(String name) {
+        MyApplication.sp.edit().putString(SAVE_DEVICE_NAME, name).commit();
+    }
+
+    public static String getDeviceName() {
+        return MyApplication.sp.getString(SAVE_DEVICE_NAME, "");
+    }
+
+    /**
      * 保存蓝牙地址;
      */
     public static final String SAVE_DEVICE_MAC = "save_device_mac";
@@ -79,7 +92,7 @@ public class SpHelp implements Serializable {
     }
 
     public static String getDeviceMac() {
-        return MyApplication.sp.getString(SAVE_DEVICE_MAC, "0");
+        return MyApplication.sp.getString(SAVE_DEVICE_MAC, "");
     }
 
     /**

@@ -2,18 +2,22 @@ package com.bt.elderbracelet.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.RemoteException;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bonten.ble.application.MyApplication;
 import com.bt.elderbracelet.data.ModelDao;
 import com.bt.elderbracelet.entity.HeartRate;
-import com.bt.elderbracelet.entity.others.Event;
+import com.bt.elderbracelet.protocal.RemoteServiceCallback;
 import com.bt.elderbracelet.tools.BaseUtils;
-import com.bt.elderbracelet.tools.MethodUtils;
 import com.bt.elderbracelet.view.TitleView;
 import com.bt.elderbracelet.view.TitleView.onBackLister;
 import com.bt.elderbracelet.view.TitleView.onSetLister;
@@ -25,44 +29,81 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.sxr.sdk.ble.keepfit.aidl.IRemoteService;
+import com.sxr.sdk.ble.keepfit.aidl.IServiceCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
 import mpchart.notimportant.DemoBase;
 
 
 public class HeartRateActivity extends DemoBase {
+    public static final String TAG = HeartRateActivity.class.getSimpleName();
 
     private TitleView titleView;
     private FrameLayout frameGraph;
     private TextView tvheartRate, tvheartRateTime;
 
-    private ModelDao modelDao;
     private List<Entry> sourceData;
     private LineData lineData = null;
     private LineDataSet lineDataSet = null;
     private LineChart mLineChart = null;
-    private HeartRate rate = null;
     private List<Integer> allHeartRateNum;  //记录一次测心率的过程中变化的所有数据
 
+    private ModelDao modelDao;
+
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (allHeartRateNum == null) {
+                allHeartRateNum = new ArrayList<Integer>();
+            }
+
+            allHeartRateNum.add(msg.what);
+            updateUI(msg.what);
+        }
+    };
+
+
+    private IRemoteService mService;
+    private IServiceCallback mServiceCallback = new RemoteServiceCallback() {
+
+        @Override
+        public void onReceiveSensorData(final int heartrate, int pressureHigh, int pressureLow, int oxygen,
+                                        int tired) throws RemoteException {
+            // 心率, 高血压, 低血压, 血氧, 疲劳值);
+            Log.v("onReceiveSensorData", "result:" + heartrate + " , " + pressureHigh + " , " + pressureLow + " , " + oxygen + " , " + tired);
+
+            if (heartrate != 0) {
+                Log.v(TAG, "APP接收到心率数据：" + heartrate);
+                Message msg = Message.obtain();
+                msg.what = heartrate;
+                mHandler.sendMessage(msg);
+            }
+        }
+    };
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.bracelet_heart_rate);
         MyApplication.getInstance().addActivity(this);
-        EventBus.getDefault().register(this);
+        modelDao = new ModelDao(getApplicationContext());
+        mService = MyApplication.remoteService;
+        try {
+            mService.registerCallback(mServiceCallback);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
         initView();
         initChartData();
-        initData();
+        callRemoteOpenBlood(true);
     }
 
-    private void initView()
-    {
+    private void initView() {
         //初始化标题栏
         titleView = (TitleView) findViewById(R.id.titleview);       //初始化标题栏
         titleView.setTitle(R.string.heart_rate);
@@ -71,15 +112,13 @@ public class HeartRateActivity extends DemoBase {
         titleView.titleImg(R.drawable.heart_rate_top_icon);
         titleView.setBack(R.drawable.steps_back, new onBackLister() {
             @Override
-            public void onClick(View button)
-            {
+            public void onClick(View button) {
                 finish();
             }
         });
         titleView.right(R.string.history, new onSetLister() {
             @Override
-            public void onClick(View button)
-            {
+            public void onClick(View button) {
                 Intent intent = new Intent(getApplicationContext(), HeartRateHistoryActivity.class);
                 startActivity(intent);
             }
@@ -142,8 +181,7 @@ public class HeartRateActivity extends DemoBase {
 
     }
 
-    private void initChartData()
-    {
+    private void initChartData() {
 
         if (sourceData == null) {
             sourceData = new ArrayList<>();
@@ -165,55 +203,9 @@ public class HeartRateActivity extends DemoBase {
         mLineChart.setData(lineData);
     }
 
-    public void initData()
-    {
-        if (modelDao == null) {
-            modelDao = new ModelDao(HeartRateActivity.this);
-        }
-        if (rate == null) {   //初始化心率界面时，首先从数据库中读取历史数据
-            rate = modelDao.getLastHeartRate();
-        }
-
-        if(rate == null){   //如果从数据库中读取到的数据还是null
-            tvheartRate.setText("0");
-            tvheartRateTime.setText("");
-        }else {
-            tvheartRate.setText(rate.getHeartRate());
-            tvheartRateTime.setText(rate.getPreciseDate());
-
-            lineData = mLineChart.getData();
-            lineDataSet = lineData.getDataSetByIndex(0);
-            int count = lineDataSet.getEntryCount();
-            Entry entry = new Entry(Integer.valueOf(rate.getHeartRate()), count);
-            lineData.addXValue("");
-            lineData.addEntry(entry, 0);
-
-            mLineChart.notifyDataSetChanged();
-            mLineChart.invalidate();
-        }
-    }
-
-    /**
-     * le: 随时准备接收传递过来的心率数据
-     */
-    public void onEventMainThread(Event event)
-    {
-        if (event.heartRate != null) {
-            rate = event.heartRate;
-            int heartRateValue = Integer.valueOf(rate.getHeartRate()); //获取心率数值
-            if (allHeartRateNum == null) {
-                allHeartRateNum = new ArrayList<Integer>();
-            }
-            allHeartRateNum.add(heartRateValue);
-
-            initData();
-        }
-
-    }
 
     @Override
-    protected void onStop()
-    {
+    protected void onStop() {
         super.onStop();
         //下面是计算本次心率变化数据的平均值，然后保存到数据库中
         int amount = 0;
@@ -226,20 +218,46 @@ public class HeartRateActivity extends DemoBase {
             heartRate.setHeartRate(String.valueOf(averageRate));
             heartRate.setPreciseDate(BaseUtils.getPreciseDate());
             modelDao.insertHeartRate(heartRate);
-
-            MethodUtils.uploadHeartRate(HeartRateActivity.this, heartRate);
         }
     }
 
+    private void updateUI(int heartRate) {
+        Log.v(TAG, "APP接收到心率数据：" + heartRate);
+        tvheartRate.setText(heartRate + "");
+//        tvheartRateTime.setText(rate.getPreciseDate());
+
+        lineData = mLineChart.getData();
+        lineDataSet = lineData.getDataSetByIndex(0);
+        int count = lineDataSet.getEntryCount();
+        Entry entry = new Entry(heartRate, count);
+        lineData.addXValue("");
+        lineData.addEntry(entry, 0);
+
+        mLineChart.notifyDataSetChanged();
+        mLineChart.invalidate();
+    }
+
+    private void callRemoteOpenBlood(boolean enable) {
+        if (mService != null) {
+            try {
+                mService.setBloodPressureMode(enable);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Remote call error!", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "Service is not available yet!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
+        callRemoteOpenBlood(false);
         if (mLineChart != null) {
             mLineChart = null;
         }
     }
-
 
 }

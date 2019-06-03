@@ -10,6 +10,13 @@ public class DeviceInfo implements Serializable {
     private String name;
     private String mac;
 
+    public DeviceInfo() {
+    }
+    public DeviceInfo(String name, String mac) {
+        this.name = name;
+        this.mac = mac;
+    }
+
     public String getName() {
         return name;
     }

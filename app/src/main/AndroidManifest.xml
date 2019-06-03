@@ -57,7 +57,7 @@
         android:persistent="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.bt.elderbracelet.activity.MainActivity"
+            android:name="com.bt.elderbracelet.activity.EmptyActivity"
             android:icon="@drawable/ruyi"
             android:label="@string/app_name"
             android:launchMode="singleTop"
@@ -68,6 +68,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.bt.elderbracelet.activity.BindActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.bt.elderbracelet.activity.MainActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name="com.bt.elderbracelet.activity.RegisterActivity"
             android:screenOrientation="portrait" />
@@ -210,16 +216,10 @@
             android:enabled="true"
             android:exported="true"
             android:process="com.sxr.sdk.ble.keepfit.client.SampleBleService">
-
             <intent-filter>
                 <action android:name="com.sxr.sdk.ble.BluetoothLeService.SampleBleService" />
             </intent-filter>
         </service>
-
-        <service
-            android:name="com.bonten.ble.servise.BleService"
-            android:enabled="true"
-            android:permission="true" />
 
         <receiver android:name="com.bt.elderbracelet.receiver.SMSReceiver">
             <intent-filter android:priority="1000">
@@ -238,7 +238,7 @@
         <service
             android:name="com.bonten.ble.servise.MedicineClockService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
     </application>
 

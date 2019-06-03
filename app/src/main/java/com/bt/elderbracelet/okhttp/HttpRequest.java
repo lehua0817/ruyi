@@ -9,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.Map;
 
 import okhttp3.MediaType;
@@ -30,8 +29,7 @@ public class HttpRequest {
      * @param callback 处理网络请求的回调接口
      */
 
-    public static void post(final String url, final String jsonData, final HttpRequestCallback callback)
-    {
+    public static void post(final String url, final String jsonData, final HttpRequestCallback callback) {
         new PostTask(url, jsonData, callback).execute();
     }
 
@@ -42,8 +40,7 @@ public class HttpRequest {
      * @param callback 处理网络请求的回调接口
      */
     public static void get(final String url, final Map<String, String> headers,
-                           final Map<String, Object> params, final HttpRequestCallback callback)
-    {
+                           final Map<String, Object> params, final HttpRequestCallback callback) {
         new GetTask(headers, params, url, callback).execute();
     }
 
@@ -53,8 +50,7 @@ public class HttpRequest {
         void onFailure();
     }
 
-    private static String attachHttpGetParams(String url, Map<String, Object> params)
-    {
+    private static String attachHttpGetParams(String url, Map<String, Object> params) {
         if (url == null)
             return null;
         if (params == null || params.isEmpty())
@@ -77,16 +73,14 @@ public class HttpRequest {
         private String jsonData;
         private HttpRequestCallback callback;
 
-        PostTask(String url, String jsonData, HttpRequestCallback callback)
-        {
+        PostTask(String url, String jsonData, HttpRequestCallback callback) {
             this.url = url;
             this.jsonData = jsonData;
             this.callback = callback;
         }
 
         @Override
-        protected String doInBackground(Void... params)
-        {
+        protected String doInBackground(Void... params) {
             OkHttpClient okHttpClient = new OkHttpClient();
             RequestBody rb = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonData);
             Request request = new Request.Builder()
@@ -95,6 +89,7 @@ public class HttpRequest {
                     .build();
             try {
                 Response response = okHttpClient.newCall(request).execute();
+                Log.v("Status Code", "Status Code = " + response.code());
                 if (response.isSuccessful()) {
                     return response.body().string();
                 } else {
@@ -107,8 +102,7 @@ public class HttpRequest {
         }
 
         @Override
-        protected void onPostExecute(String response)
-        {
+        protected void onPostExecute(String response) {
             //注意：这个参数，实际上并不是response，而只是response.body().string()
             //它本身也是一个JsonObject的字符串，所以我们要获取其中的数据，
             //必须再次强转为JsonObject,然后通过opt(key)方法获取其中的真实数据
@@ -131,8 +125,7 @@ public class HttpRequest {
         private String url;
         private HttpRequestCallback callback;
 
-        GetTask(Map<String, String> headers, Map<String, Object> params, String url, HttpRequestCallback callback)
-        {
+        GetTask(Map<String, String> headers, Map<String, Object> params, String url, HttpRequestCallback callback) {
             this.headers = headers;
             this.params = params;
             this.url = url;
@@ -140,8 +133,7 @@ public class HttpRequest {
         }
 
         @Override
-        protected String doInBackground(Void... params)
-        {
+        protected String doInBackground(Void... params) {
             OkHttpClient httpClient = new OkHttpClient();
             Request.Builder builder = new Request.Builder();
             if (headers != null) {
@@ -160,8 +152,9 @@ public class HttpRequest {
             Response response;
             try {
                 response = httpClient.newCall(request).execute();
-                Log.e("HTTP", new Date().toString() + ": " + request.url().toString());
-                    if (!response.isSuccessful()) {
+
+                Log.v("Status Code", "Status Code = " + response.code());
+                if (!response.isSuccessful()) {
                     return null;
                 }
                 return response.body().string();
@@ -172,10 +165,8 @@ public class HttpRequest {
         }
 
         @Override
-        protected void onPostExecute(String response)
-        {
-            Log.e("HTTP", new Date().toString() + ": response");
-            Log.e("HTTP", response == null ? "null" : response);
+        protected void onPostExecute(String response) {
+            Log.v("HTTP", response == null ? "null" : response);
             if (response != null) {
                 try {
                     JSONObject object = new JSONObject(response);
@@ -184,8 +175,9 @@ public class HttpRequest {
                     e.printStackTrace();
                     callback.onFailure();
                 }
-            } else
+            } else {
                 callback.onFailure();
+            }
         }
     }
 }

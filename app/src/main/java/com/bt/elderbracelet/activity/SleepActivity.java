@@ -9,11 +9,9 @@ import android.view.Window;
 import android.widget.TextView;
 
 import com.bonten.ble.application.MyApplication;
-import com.bonten.ble.servise.BleService;
 import com.bt.elderbracelet.data.ModelDao;
 import com.bt.elderbracelet.entity.Sleep;
 import com.bt.elderbracelet.entity.others.Event;
-import com.bt.elderbracelet.protocal.OrderData;
 import com.bt.elderbracelet.tools.BaseUtils;
 import com.bt.elderbracelet.tools.MethodUtils;
 import com.bt.elderbracelet.tools.other.TasksCompletedSleepView;
@@ -78,8 +76,9 @@ public class SleepActivity extends Activity {
             @Override
             public void onClick(View v)
             {
-                if (MyApplication.isConndevice) {
-                    BleService.sendCommand(OrderData.getCommonOrder(OrderData.GET_SLEEP_BIG_DATA));   //手机向手环 获取当天睡眠数据 的指令  4bytes
+                if (MyApplication.isConnected) {
+                    // TODO: 2019/6/1
+//                    BleService.sendCommand(OrderData.getCommonOrder(OrderData.GET_SLEEP_BIG_DATA));   //手机向手环 获取当天睡眠数据 的指令  4bytes
                 } else {
                     MethodUtils.showToast(getApplicationContext(), "请先连接蓝牙");
                 }

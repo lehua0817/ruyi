@@ -9,18 +9,18 @@ import android.view.Window;
 import android.widget.TextView;
 
 import com.bonten.ble.application.MyApplication;
-import com.bonten.ble.servise.BleService;
 import com.bt.elderbracelet.data.ModelDao;
 import com.bt.elderbracelet.entity.Sport;
 import com.bt.elderbracelet.entity.others.Event;
-import com.bt.elderbracelet.protocal.OrderData;
 import com.bt.elderbracelet.tools.BaseUtils;
 import com.bt.elderbracelet.tools.other.TasksCompletedSportTimeView;
 import com.bt.elderbracelet.view.TitleView;
 import com.bt.elderbracelet.view.TitleView.onBackLister;
 import com.bt.elderbracelet.view.TitleView.onSetLister;
 import com.bttow.elderbracelet.R;
+
 import java.util.ArrayList;
+
 import de.greenrobot.event.EventBus;
 
 /**
@@ -30,7 +30,6 @@ public class SportTimeActivity extends Activity {
     TitleView titleview; //标题栏
     TasksCompletedSportTimeView tasksSportTimeview;  //任务完成视图
     TextView tvSportTime;  //运动时间
-    int weight;
     private ModelDao model;
 
     @Override
@@ -41,7 +40,8 @@ public class SportTimeActivity extends Activity {
         setContentView(R.layout.bracelet_sport_time);
         MyApplication.getInstance().addActivity(this);
         EventBus.getDefault().register(this);
-        BleService.sendCommand(OrderData.getCommonOrder(OrderData.SYN_SPORT_ORDER));
+        // TODO: 2019/6/1  
+//        BleService.sendCommand(OrderData.getCommonOrder(OrderData.SYN_SPORT_ORDER));
         initView();
     }
 

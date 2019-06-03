@@ -3,6 +3,14 @@ package com.bt.elderbracelet.protocal;
 import java.util.Calendar;
 
 public class OrderData {
+
+    // 给手环推送的消息类型
+    public static final int NOTIFICATION_PHONE = 0;   //电话
+    public static final int NOTIFICATION_SMS = 1;     //短信
+    public static final int NOTIFICATION_WECHAT = 2;  //微信
+    public static final int NOTIFICATION_QQ = 3;      //QQ
+
+
     public static boolean open = true; // 闹钟开关
 
     public static final String AIR_UPDATE_DEVICE = "air_update_device";//空中升级指令
