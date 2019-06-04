@@ -55,40 +55,43 @@ public class DistanceActivity extends Activity {
             if (type == 0) {
                 System.out.println("运动数据来了");
 
+                /**
+                 * 这里跟如医X10Pro手环处理数据很不同
+                 * 这里处理数据的逻辑是：
+                 *     先判断数据库中有没有今天的数据记录，
+                 *     如果有，则取出今天的数据记录，
+                 *          只更新其中的step、distance和cal数据，然后将此Sport更新到原数据库
+                 *          不能新建Sport,再给其step、distance和cal，然后更新到数据库，因为这样
+                 *          今天的睡眠时间数据就会被覆盖掉。
+                 *     如果数据库中没有今天的数据，则新建Sport,给step、distance和cal赋值，别忘了给
+                 *          Date赋值，然后插入到数据库中。
+                 */
+
                 Log.v(TAG, "step = " + step);
                 Log.v(TAG, "distance = " + distance);
                 Log.v(TAG, "cal = " + cal);
-                Log.v(TAG, "cursleeptime = " + cursleeptime);
-                Log.v(TAG, "totalrunningtime = " + totalrunningtime);
-                Log.v(TAG, "steptime = " + steptime);
 
-                int _step = step;
-                int _distance = distance;
-                int _calories = cal;
-                int _sportTime = 100;
 
                 Sport sport = new Sport();
-                sport.setDate(BaseUtils.getTodayDate());
-                sport.setStep(String.valueOf(_step));
-                sport.setDistance(String.valueOf(_distance));
-                sport.setCalorie(String.valueOf(_calories));
-                sport.setSportTime(String.valueOf(_sportTime));
-
                 boolean isExist = false;  //代表数据库中是否已经有今天的数据记录
 
                 ArrayList<Sport> sportList = modelDao.queryAllSport();
                 if (sportList != null && sportList.size() > 0) {
                     for (int i = 0; i < sportList.size(); i++) {
                         if (sportList.get(i).getDate().equals(BaseUtils.getTodayDate())) {
-                            sport.setId(sportList.get(i).getId());
                             isExist = true;
+                            sport = sportList.get(i);
                             break;
                         }
                     }
                 }
+                sport.setStep(step + "");
+                sport.setDistance(distance + "");
+                sport.setCalorie(cal + "");
                 if (isExist) {
                     modelDao.updateSport(sport, BaseUtils.getTodayDate());
                 } else {
+                    sport.setDate(BaseUtils.getTodayDate());
                     modelDao.insertSport(sport);
                 }
                 Message msg = Message.obtain();

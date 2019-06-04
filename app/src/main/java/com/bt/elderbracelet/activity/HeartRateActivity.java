@@ -18,6 +18,7 @@ import com.bt.elderbracelet.data.ModelDao;
 import com.bt.elderbracelet.entity.HeartRate;
 import com.bt.elderbracelet.protocal.RemoteServiceCallback;
 import com.bt.elderbracelet.tools.BaseUtils;
+import com.bt.elderbracelet.tools.MethodUtils;
 import com.bt.elderbracelet.view.TitleView;
 import com.bt.elderbracelet.view.TitleView.onBackLister;
 import com.bt.elderbracelet.view.TitleView.onSetLister;
@@ -101,6 +102,7 @@ public class HeartRateActivity extends DemoBase {
         initView();
         initChartData();
         callRemoteOpenBlood(true);
+        MethodUtils.showLoadingDialog(this);
     }
 
     private void initView() {
@@ -223,6 +225,7 @@ public class HeartRateActivity extends DemoBase {
 
     private void updateUI(int heartRate) {
         Log.v(TAG, "APP接收到心率数据：" + heartRate);
+        MethodUtils.cancelLoadingDialog();
         tvheartRate.setText(heartRate + "");
 //        tvheartRateTime.setText(rate.getPreciseDate());
 
@@ -255,6 +258,7 @@ public class HeartRateActivity extends DemoBase {
     protected void onDestroy() {
         super.onDestroy();
         callRemoteOpenBlood(false);
+        MethodUtils.cancelLoadingDialog();
         if (mLineChart != null) {
             mLineChart = null;
         }

@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.bonten.ble.application.MyApplication;
 import com.bt.elderbracelet.data.ModelDao;
 import com.bt.elderbracelet.entity.Sport;
@@ -77,6 +76,7 @@ public class SportTimeActivity extends Activity {
                 if (isExist) {
                     model.updateSport(sport, BaseUtils.getTodayDate());
                 } else {
+                    sport.setDate(BaseUtils.getTodayDate());
                     model.insertSport(sport);
                 }
 

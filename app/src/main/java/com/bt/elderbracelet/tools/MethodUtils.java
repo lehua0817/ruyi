@@ -94,6 +94,14 @@ public class MethodUtils {
         dialog.show();
     }
 
+    //取消显示一个Dialog
+    public static void cancelLoadingDialog() {
+        if (dialog != null && dialog.isShowing()) {
+            dialog.cancel();
+            dialog = null;
+        }
+    }
+
     /**
      * 弹出缓存框
      *

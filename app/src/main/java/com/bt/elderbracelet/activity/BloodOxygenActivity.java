@@ -17,6 +17,7 @@ import com.bt.elderbracelet.data.ModelDao;
 import com.bt.elderbracelet.entity.BloodOxygen;
 import com.bt.elderbracelet.protocal.RemoteServiceCallback;
 import com.bt.elderbracelet.tools.BaseUtils;
+import com.bt.elderbracelet.tools.MethodUtils;
 import com.bt.elderbracelet.tools.other.TasksCompletedOxygenView;
 import com.bt.elderbracelet.view.TitleView;
 import com.bttow.elderbracelet.R;
@@ -80,6 +81,7 @@ public class BloodOxygenActivity extends Activity {
         }
         initView();
         callRemoteOpenBlood(true);
+        MethodUtils.showLoadingDialog(this);
     }
 
     private void initView() {
@@ -108,6 +110,7 @@ public class BloodOxygenActivity extends Activity {
 
     private void updateUI(int oxygen) {
         if (oxygen > 0) {
+            MethodUtils.cancelLoadingDialog();
             tvOxygen.setText(oxygen + "");
             taskViewOxygen.setProgress(oxygen);
         }
@@ -130,5 +133,6 @@ public class BloodOxygenActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         callRemoteOpenBlood(false);
+        MethodUtils.cancelLoadingDialog();
     }
 }

@@ -91,7 +91,6 @@ public class MainActivity extends Activity implements OnClickListener {
     private AtomicInteger pushCount = new AtomicInteger(10);
     private AlertDialog mConnectingDialog = null;
     private AlertDialog mScanningDialog = null;
-    private ArrayList<DeviceInfo> deviceList;
 
     private IRemoteService mService;
     private IServiceCallback mServiceCallback = new RemoteServiceCallback() {
@@ -141,15 +140,13 @@ public class MainActivity extends Activity implements OnClickListener {
         //将昨天的睡眠数据补充完整
         SystemClock.sleep(500);
         syncHistoryData();    //很关键，每次连接手环后，都要将手机中的数据同步到服务器上
-
-        callgetCurSportData();
-
     }
 
     /**
      * 手环和手机取消连接后的动作
      */
     private void doAfterDisConnect() {
+        Log.v(TAG, "断开连接");
         MyApplication.isConnected = false;
         img_connect_state.setImageResource(R.drawable.dis_connected);
 
@@ -208,18 +205,6 @@ public class MainActivity extends Activity implements OnClickListener {
         }
     }
 
-    private void callgetCurSportData() {
-        if (mService != null) {
-            try {
-                mService.getCurSportData();
-            } catch (RemoteException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Remote call error!", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            Toast.makeText(this, "Service is not available yet!", Toast.LENGTH_SHORT).show();
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -239,8 +224,41 @@ public class MainActivity extends Activity implements OnClickListener {
             e.printStackTrace();
         }
 //        initHandlerAndRunnable();
-        initSmsReceiver();
+        registerSmsReceiver();
         connectSavedDevice();
+    }
+
+    public void registerSmsReceiver() {
+        IntentFilter smsIntentFilter = new IntentFilter();
+        // 接收短信的广播
+        smsIntentFilter.addAction("android.provider.Telephony.SMS_RECEIVED");
+        registerReceiver(smsReceiver, smsIntentFilter);
+    }
+
+    private BroadcastReceiver smsReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")) {
+                System.out.println("来短信了");
+                if (SpHelp.getPhoneMsgRemind()) {
+                    callNotify(OrderData.NOTIFICATION_SMS, "", "");
+                }
+            }
+        }
+    };
+
+    private void callNotify(int type, String title, String content) {
+        boolean result;
+        if (mService != null) {
+            try {
+                result = mService.setNotify(System.currentTimeMillis() + "", type, title, content);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Remote call error!", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "Service is not available yet!", Toast.LENGTH_SHORT).show();
+        }
     }
 
 
@@ -303,25 +321,6 @@ public class MainActivity extends Activity implements OnClickListener {
             startActivityForResult(enableBtIntent, 1);
         }
     }
-
-    public void initSmsReceiver() {
-        IntentFilter smsIntentFilter = new IntentFilter();
-        // 接收短信的广播
-        smsIntentFilter.addAction("android.provider.Telephony.SMS_RECEIVED");
-        registerReceiver(smsReceiver, smsIntentFilter);
-    }
-
-    private BroadcastReceiver smsReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")) {
-                System.out.println("来短信了");
-                if (SpHelp.getPhoneMsgRemind()) {
-                    callNotify(OrderData.NOTIFICATION_SMS, "", "");
-                }
-            }
-        }
-    };
 
 
     //开启手机来电监控
@@ -428,31 +427,16 @@ public class MainActivity extends Activity implements OnClickListener {
         }
     }
 
-    public void onEventMainThread(Event event) {
-        if (event.update_syn_time) {
-            MethodUtils.showToast(MainActivity.this, "时间同步成功");
-        }
-        if (event.pressure != null) {
-            MethodUtils.uploadBloodPressure(MainActivity.this, event.pressure);
-        }
-    }
-
 
     @Override
     protected void onRestart() {
         super.onRestart();
         if (SpHelp.getJoinGround()) {
-
-            if (mService == null) {
-
-            }
             SpHelp.saveJoinGround(false);
         }
-
-        if (SpHelp.getUserPhoto() != null) {
-            iv_photo.setImageBitmap(SpHelp.getUserPhoto());
+        if (!MyApplication.isConnected) {
+            connectSavedDevice();
         }
-
     }
 
 
@@ -753,21 +737,6 @@ public class MainActivity extends Activity implements OnClickListener {
         //这是内部最重要的函数，要执行两个步骤：
         //第一：container.addView() 添加View到ViewPager中
         //第二：返回刚刚添加的View
-    }
-
-
-    private void callNotify(int type, String title, String content) {
-        boolean result;
-        if (mService != null) {
-            try {
-                result = mService.setNotify(System.currentTimeMillis() + "", type, title, content);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Remote call error!", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            Toast.makeText(this, "Service is not available yet!", Toast.LENGTH_SHORT).show();
-        }
     }
 
 

@@ -17,6 +17,7 @@ import com.bt.elderbracelet.data.ModelDao;
 import com.bt.elderbracelet.entity.BloodPressure;
 import com.bt.elderbracelet.protocal.RemoteServiceCallback;
 import com.bt.elderbracelet.tools.BaseUtils;
+import com.bt.elderbracelet.tools.MethodUtils;
 import com.bt.elderbracelet.view.TitleView;
 import com.bt.elderbracelet.view.TitleView.onSetLister;
 import com.bttow.elderbracelet.R;
@@ -74,7 +75,7 @@ public class BloodPressureActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.bracelet_pressure);
         MyApplication.getInstance().addActivity(this);
-        modelDao = new ModelDao(getApplicationContext());
+        modelDao = new ModelDao(this);
         mService = MyApplication.remoteService;
         try {
             mService.registerCallback(mServiceCallback);
@@ -83,6 +84,7 @@ public class BloodPressureActivity extends Activity {
         }
         initView();
         callRemoteOpenBlood(true);
+        MethodUtils.showLoadingDialog(this);
     }
 
     private void initView() {
@@ -115,6 +117,7 @@ public class BloodPressureActivity extends Activity {
 
 
     private void updateUI(int pressureLow, int pressureHigh) {
+        MethodUtils.cancelLoadingDialog();
         tvLowPressure.setText(pressureLow + "");
         tvHighPressure.setText(pressureHigh + "");
     }
@@ -136,5 +139,6 @@ public class BloodPressureActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         callRemoteOpenBlood(false);
+        MethodUtils.cancelLoadingDialog();
     }
 }
