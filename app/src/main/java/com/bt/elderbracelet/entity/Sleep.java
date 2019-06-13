@@ -7,7 +7,7 @@ package com.bt.elderbracelet.entity;
 public class Sleep {
     private int id;
     private String sleepDeepTime;     //深度睡眠时间
-    private String sleepTime;      //睡眠总时间
+    private String sleepTime;         //睡眠总时间
 
     private String date;    //日期     日期形式为 2017-08-01
 
