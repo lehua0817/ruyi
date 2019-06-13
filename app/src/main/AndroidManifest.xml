@@ -78,6 +78,9 @@
             android:name="com.bt.elderbracelet.activity.RegisterActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name="com.bt.elderbracelet.activity.RegisterTwoActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name="com.bt.elderbracelet.activity.BoundSuccessActivity"
             android:screenOrientation="portrait" />
         <activity
@@ -98,9 +101,9 @@
         <activity
             android:name="com.bt.elderbracelet.activity.RemindActivity"
             android:screenOrientation="portrait" />
-        <activity
-            android:name="com.bt.elderbracelet.activity.MedicineRemindActivity"
-            android:screenOrientation="portrait" />
+        <!--<activity-->
+            <!--android:name="com.bt.elderbracelet.activity.MedicineRemindActivity"-->
+            <!--android:screenOrientation="portrait" />-->
         <!--
                <activity
                android:name="com.bt.elderbracelet.activity.CallClosestPeopleActivity"

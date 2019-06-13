@@ -20,8 +20,7 @@ import java.util.List;
 public class ModelDao {
     private DBOpenHelper helper;
 
-    public ModelDao(Context context)
-    {
+    public ModelDao(Context context) {
         helper = new DBOpenHelper(context);
     }
 
@@ -39,8 +38,7 @@ public class ModelDao {
      */
 
     ////////////  实体Register----表registerTal /////////
-    public long insertRegister(Register register)
-    {
+    public long insertRegister(Register register) {
         List<Register> registerList = queryAllRegister();
         //删除大于7条的数据
         if (registerList.size() == 7) {
@@ -62,14 +60,22 @@ public class ModelDao {
         values.put(DBOpenHelper.urgentContactName, register.getUrgentContactName());
         values.put(DBOpenHelper.urgentContactPhone, register.getUrgentContactPhone());
         values.put(DBOpenHelper.serviceId, register.getServiceId());
+
+        values.put(DBOpenHelper.art, register.getArt());
+        values.put(DBOpenHelper.sportsRate, register.getSportsRate());
+        values.put(DBOpenHelper.diet, register.getDiet());
+        values.put(DBOpenHelper.smoke, register.getSmoke());
+        values.put(DBOpenHelper.drink, register.getDrink());
+        values.put(DBOpenHelper.allergic, register.getAllergic());
+        values.put(DBOpenHelper.illness, register.getIllness());
+
         SQLiteDatabase db = helper.getWritableDatabase();
         rowId = db.insert(DBOpenHelper.RegisterTable, DBOpenHelper.name, values);
         db.close();
         return rowId;
     }
 
-    public int deleteRegister(int id)
-    {
+    public int deleteRegister(int id) {
         int count = -1;
         SQLiteDatabase db = helper.getWritableDatabase();
         count = db.delete(DBOpenHelper.RegisterTable, "_id=" + id, null);
@@ -77,8 +83,7 @@ public class ModelDao {
         return count;
     }
 
-    public ArrayList<Register> queryAllRegister()
-    {
+    public ArrayList<Register> queryAllRegister() {
         ArrayList<Register> registers = null;
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor c = db.rawQuery("select * from " + DBOpenHelper.RegisterTable, null);
@@ -100,6 +105,15 @@ public class ModelDao {
                 register.setUrgentContactName(c.getString(c.getColumnIndex(DBOpenHelper.urgentContactName)));
                 register.setUrgentContactPhone(c.getString(c.getColumnIndex(DBOpenHelper.urgentContactPhone)));
                 register.setServiceId(c.getString(c.getColumnIndex(DBOpenHelper.serviceId)));
+
+                register.setArt(c.getString(c.getColumnIndex(DBOpenHelper.art)));
+                register.setSportsRate(c.getString(c.getColumnIndex(DBOpenHelper.sportsRate)));
+                register.setDiet(c.getString(c.getColumnIndex(DBOpenHelper.diet)));
+                register.setSmoke(c.getString(c.getColumnIndex(DBOpenHelper.smoke)));
+                register.setDrink(c.getString(c.getColumnIndex(DBOpenHelper.drink)));
+                register.setAllergic(c.getString(c.getColumnIndex(DBOpenHelper.allergic)));
+                register.setIllness(c.getString(c.getColumnIndex(DBOpenHelper.illness)));
+
                 registers.add(register);
             }
         }
@@ -110,8 +124,7 @@ public class ModelDao {
         return registers;
     }
 
-    public long updateRegister(Register register, int id)
-    {
+    public long updateRegister(Register register, int id) {
         long rowId = -1;
         ContentValues values = new ContentValues();
         values.put(DBOpenHelper.registerId, register.getId());
@@ -128,6 +141,15 @@ public class ModelDao {
         values.put(DBOpenHelper.urgentContactName, register.getUrgentContactName());
         values.put(DBOpenHelper.urgentContactPhone, register.getUrgentContactPhone());
         values.put(DBOpenHelper.serviceId, register.getServiceId());
+
+        values.put(DBOpenHelper.art, register.getArt());
+        values.put(DBOpenHelper.sportsRate, register.getSportsRate());
+        values.put(DBOpenHelper.diet, register.getDiet());
+        values.put(DBOpenHelper.smoke, register.getSmoke());
+        values.put(DBOpenHelper.drink, register.getDrink());
+        values.put(DBOpenHelper.allergic, register.getAllergic());
+        values.put(DBOpenHelper.illness, register.getIllness());
+
         SQLiteDatabase db = helper.getWritableDatabase();
         rowId = db.update(DBOpenHelper.RegisterTable, values, "_id=?", new String[]{id + ""});
         System.out.println("更新注册**********rowId" + rowId);
@@ -136,8 +158,7 @@ public class ModelDao {
     }
 
 
-    public Register getLastRegister()
-    {
+    public Register getLastRegister() {
         ArrayList<Register> userList = queryAllRegister();
         int size = userList.size();
         if (size == 0) {
@@ -147,8 +168,7 @@ public class ModelDao {
     }
 
     //////////  实体BloodPressure------表BloodPressureTable   ////////////////
-    public long insertBloodPressure(BloodPressure pressure)
-    {
+    public long insertBloodPressure(BloodPressure pressure) {
         List<BloodPressure> pressureList = queryAllBloodPressure();
         //删除大于7条的数据
         if (pressureList.size() == 7) {
@@ -166,8 +186,7 @@ public class ModelDao {
         return rowId;
     }
 
-    public int deleteBloodPressure(int id)
-    {
+    public int deleteBloodPressure(int id) {
         int count = -1;
         SQLiteDatabase db = helper.getWritableDatabase();
         count = db.delete(DBOpenHelper.BloodPressureTable, "_id=" + id, null);
@@ -175,8 +194,7 @@ public class ModelDao {
         return count;
     }
 
-    public ArrayList<BloodPressure> queryAllBloodPressure()
-    {
+    public ArrayList<BloodPressure> queryAllBloodPressure() {
         ArrayList<BloodPressure> pressureList = null;
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor c = db.rawQuery("select * from " + DBOpenHelper.BloodPressureTable, null);
@@ -198,8 +216,7 @@ public class ModelDao {
         return pressureList;
     }
 
-    public BloodPressure getLastBloodPressure()
-    {
+    public BloodPressure getLastBloodPressure() {
         ArrayList<BloodPressure> pressureList = queryAllBloodPressure();
         if (pressureList == null) {
             return null;
@@ -208,8 +225,7 @@ public class ModelDao {
         return pressureList.get(size - 1);
     }
 
-    public BloodPressure queryPressureByDate(String date)
-    {
+    public BloodPressure queryPressureByDate(String date) {
         BloodPressure pressure = null;
         ArrayList<BloodPressure> pressureList = queryAllBloodPressure();
         int countHigh = 0;
@@ -233,8 +249,7 @@ public class ModelDao {
 
 
     //////////  实体BloodSugar------表BloodSugarTable   ////////////////
-    public long insertBloodSugar(BloodSugar sugar)
-    {
+    public long insertBloodSugar(BloodSugar sugar) {
         List<BloodSugar> sugarList = queryAllBloodSugar();
         //删除大于7条的数据
         if (sugarList.size() == 7) {
@@ -254,8 +269,7 @@ public class ModelDao {
     }
 
 
-    public int deleteBloodSugar(int id)
-    {
+    public int deleteBloodSugar(int id) {
         int count = -1;
         SQLiteDatabase db = helper.getWritableDatabase();
         count = db.delete(DBOpenHelper.BloodSugarTable, "_id=" + id, null);
@@ -264,8 +278,7 @@ public class ModelDao {
     }
 
 
-    public ArrayList<BloodSugar> queryAllBloodSugar()
-    {
+    public ArrayList<BloodSugar> queryAllBloodSugar() {
         ArrayList<BloodSugar> sugarList = null;
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor c = db.rawQuery("select * from " + DBOpenHelper.BloodSugarTable, null);
@@ -287,8 +300,7 @@ public class ModelDao {
         return sugarList;
     }
 
-    public BloodSugar getLastBloodSuger()
-    {
+    public BloodSugar getLastBloodSuger() {
         ArrayList<BloodSugar> sugarList = queryAllBloodSugar();
         int size = sugarList.size();
         if (size == 0) {
@@ -297,8 +309,7 @@ public class ModelDao {
         return sugarList.get(size - 1);
     }
 
-    public BloodSugar querySugarByDate(String date)
-    {
+    public BloodSugar querySugarByDate(String date) {
         BloodSugar sugar = null;
         ArrayList<BloodSugar> sugarList = queryAllBloodSugar();
         int countBefore = 0;
@@ -328,8 +339,7 @@ public class ModelDao {
      * 在往BloodOxygen表中插入数据时，如果现在数据是7条，
      * 则删除最老的一条记录，再插入一条新数据，从而保证BloodOxygen表中的数据条数不会超过7条
      */
-    public long insertBloodOxygen(BloodOxygen oxygen)
-    {
+    public long insertBloodOxygen(BloodOxygen oxygen) {
         List<BloodOxygen> oxygenList = queryAllBloodOxygen();
         //删除大于7条的数据
         if (oxygenList.size() == 7) {
@@ -346,8 +356,7 @@ public class ModelDao {
         return rowId;
     }
 
-    public int deleteBloodOxygen(int id)
-    {
+    public int deleteBloodOxygen(int id) {
         int count = -1;
         SQLiteDatabase db = helper.getWritableDatabase();
         count = db.delete(DBOpenHelper.BloodOxygenTable, "_id=" + id, null);
@@ -355,8 +364,7 @@ public class ModelDao {
         return count;
     }
 
-    public ArrayList<BloodOxygen> queryAllBloodOxygen()
-    {
+    public ArrayList<BloodOxygen> queryAllBloodOxygen() {
         ArrayList<BloodOxygen> oxygenList = null;
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor c = db.rawQuery("select * from " + DBOpenHelper.BloodOxygenTable, null);
@@ -380,8 +388,7 @@ public class ModelDao {
     /**
      * @return 获取BloodOxygen表中最近的一条记录，在显示界面时常常用到
      */
-    public BloodOxygen getLastOxygen()
-    {
+    public BloodOxygen getLastOxygen() {
         ArrayList<BloodOxygen> oxygenList = queryAllBloodOxygen();
         int size = oxygenList.size();
         if (size == 0) {
@@ -390,8 +397,7 @@ public class ModelDao {
         return oxygenList.get(size - 1);
     }
 
-    public BloodOxygen queryOxygenByDate(String date)
-    {
+    public BloodOxygen queryOxygenByDate(String date) {
         BloodOxygen oxygen = null;
         ArrayList<BloodOxygen> oxygenList = queryAllBloodOxygen();
         int count = 0;
@@ -414,8 +420,7 @@ public class ModelDao {
     }
 
     //////////  实体HeartRate------表HeartRateTable   ////////////////
-    public long insertHeartRate(HeartRate heartRate)
-    {
+    public long insertHeartRate(HeartRate heartRate) {
         List<HeartRate> rateList = queryAllHeartRate();
         //删除大于7条的数据
         if (rateList.size() == 7) {
@@ -433,8 +438,7 @@ public class ModelDao {
     }
 
 
-    public int deleteHeartRate(int id)
-    {
+    public int deleteHeartRate(int id) {
         int count = -1;
         SQLiteDatabase db = helper.getWritableDatabase();
         count = db.delete(DBOpenHelper.HeartRateTable, "_id=" + id, null);
@@ -442,8 +446,7 @@ public class ModelDao {
         return count;
     }
 
-    public ArrayList<HeartRate> queryAllHeartRate()
-    {
+    public ArrayList<HeartRate> queryAllHeartRate() {
         ArrayList<HeartRate> heartRateList = null;
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor c = db.rawQuery("select * from " + DBOpenHelper.HeartRateTable, null);
@@ -464,8 +467,7 @@ public class ModelDao {
         return heartRateList;
     }
 
-    public HeartRate getLastHeartRate()
-    {
+    public HeartRate getLastHeartRate() {
         ArrayList<HeartRate> rateList = queryAllHeartRate();
         int size = rateList.size();
         if (size == 0) {
@@ -479,8 +481,7 @@ public class ModelDao {
      * 一个综合的心率数据，而且这个综合心率数据的日期不是“yyyy-MM-dd HH:mm”形式，
      * 而是"yyyy-MM-dd" ,因为传的参数类型就是 ”yyyy-MM-dd“
      */
-    public HeartRate queryHeartRateByDate(String date)
-    {
+    public HeartRate queryHeartRateByDate(String date) {
         HeartRate rate = null;
         ArrayList<HeartRate> rateList = queryAllHeartRate();
         int count = 0;
@@ -504,8 +505,7 @@ public class ModelDao {
     /**
      * 运动数据表
      */
-    public long insertSport(Sport data)
-    {
+    public long insertSport(Sport data) {
         List<Sport> sportList = queryAllSport();
         //删除大于7条的数据
         if (sportList.size() == 7) {
@@ -526,8 +526,7 @@ public class ModelDao {
         return rowId;
     }
 
-    public int deleteSport(int id)
-    {
+    public int deleteSport(int id) {
         int count;
         SQLiteDatabase db = helper.getWritableDatabase();
         count = db.delete(DBOpenHelper.sportDate, "_id=" + id, null);
@@ -535,8 +534,7 @@ public class ModelDao {
         return count;
     }
 
-    public long updateSport(Sport data, String date)
-    {
+    public long updateSport(Sport data, String date) {
         long rowId = -1;
         ContentValues values = new ContentValues();
         values.put(DBOpenHelper.sportId, data.getId());
@@ -552,8 +550,7 @@ public class ModelDao {
         return rowId;
     }
 
-    public ArrayList<Sport> queryAllSport()
-    {
+    public ArrayList<Sport> queryAllSport() {
         ArrayList<Sport> dataList = null;
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor c = db.rawQuery("select * from " + DBOpenHelper.SportTable, null);
@@ -578,8 +575,7 @@ public class ModelDao {
         return dataList;
     }
 
-    public Sport getLastSport()
-    {
+    public Sport getLastSport() {
         ArrayList<Sport> dataList = queryAllSport();
         int size = dataList.size();
         if (size == 0) {
@@ -588,8 +584,7 @@ public class ModelDao {
         return dataList.get(size - 1);
     }
 
-    public Sport querySportByDate(String date)
-    {
+    public Sport querySportByDate(String date) {
         Sport sport = null;
         ArrayList<Sport> sportList = queryAllSport();
         if (sportList != null && sportList.size() > 0) {
@@ -607,8 +602,7 @@ public class ModelDao {
     /**
      * 睡眠数据表
      */
-    public long insertSleep(Sleep sleep)
-    {
+    public long insertSleep(Sleep sleep) {
         List<Sleep> sleepList = queryAllSleep();
         //删除大于7条的数据
         if (sleepList.size() == 7) {
@@ -628,8 +622,7 @@ public class ModelDao {
         return rowId;
     }
 
-    public int deleteSleep(int id)
-    {
+    public int deleteSleep(int id) {
         int count;
         SQLiteDatabase db = helper.getWritableDatabase();
         count = db.delete(DBOpenHelper.SleepTable, "_id=" + id, null);
@@ -637,8 +630,7 @@ public class ModelDao {
         return count;
     }
 
-    public long updateSleep(Sleep data, String date)
-    {
+    public long updateSleep(Sleep data, String date) {
         long rowId = -1;
         ContentValues values = new ContentValues();
         values.put(DBOpenHelper.sleepId, data.getId());
@@ -653,8 +645,7 @@ public class ModelDao {
         return rowId;
     }
 
-    public ArrayList<Sleep> queryAllSleep()
-    {
+    public ArrayList<Sleep> queryAllSleep() {
         ArrayList<Sleep> dataList = null;
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor c = db.rawQuery("select * from " + DBOpenHelper.SleepTable, null);
@@ -678,8 +669,7 @@ public class ModelDao {
         return dataList;
     }
 
-    public Sleep getLastSleep()
-    {
+    public Sleep getLastSleep() {
         ArrayList<Sleep> dataList = queryAllSleep();
         int size = dataList.size();
         if (size == 0) {
@@ -689,8 +679,7 @@ public class ModelDao {
     }
 
 
-    public Sleep querySleepByDate(String date)
-    {
+    public Sleep querySleepByDate(String date) {
         Sleep sleep = null;
         ArrayList<Sleep> sleepList = queryAllSleep();
         if (sleepList != null && sleepList.size() > 0) {

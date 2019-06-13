@@ -77,8 +77,7 @@ public class PersonalThreeActivity extends Activity implements OnClickListener, 
     private ModelDao modelDao;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.bracelet_presonal_three_page);
@@ -89,22 +88,19 @@ public class PersonalThreeActivity extends Activity implements OnClickListener, 
     }
 
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
         initData();
     }
 
-    private void initView()
-    {
+    private void initView() {
         titleview = (TitleView) findViewById(R.id.titleview);
         titleview.setTitle(R.string.parsonal_basic_info);
         titleview.setcolor("#76c5f0");
         titleview.settextcolor("#ffffff");
         titleview.setBack(R.drawable.steps_back, new onBackLister() {
             @Override
-            public void onClick(View button)
-            {
+            public void onClick(View button) {
                 finish();
             }
         });
@@ -142,8 +138,7 @@ public class PersonalThreeActivity extends Activity implements OnClickListener, 
 
     }
 
-    private void initListener()
-    {
+    private void initListener() {
         cbHighPressure.setOnCheckedChangeListener(this);
         cbHighXuezhi.setOnCheckedChangeListener(this);
         cbCardiovas.setOnCheckedChangeListener(this);
@@ -173,8 +168,7 @@ public class PersonalThreeActivity extends Activity implements OnClickListener, 
         btnFinish.setOnClickListener(this);
     }
 
-    private void initData()
-    {
+    private void initData() {
         MyApplication.illnessList = new ArrayList<>();
         modelDao = new ModelDao(this);
 
@@ -191,8 +185,7 @@ public class PersonalThreeActivity extends Activity implements OnClickListener, 
         initDetailThree(detailThree);
     }
 
-    private void initDetailThree(PersonalDetailThree detailThree)
-    {
+    private void initDetailThree(PersonalDetailThree detailThree) {
         if (detailThree == null)
             return;
 
@@ -286,8 +279,7 @@ public class PersonalThreeActivity extends Activity implements OnClickListener, 
     }
 
     @Override
-    public void onClick(View v)
-    {
+    public void onClick(View v) {
         if (v.getId() == R.id.btn_finish) {
             if (MyApplication.illnessList != null && MyApplication.illnessList.size() > 0) {
                 StringBuilder builder = new StringBuilder("");
@@ -313,8 +305,7 @@ public class PersonalThreeActivity extends Activity implements OnClickListener, 
 
 
     @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-    {
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         switch (buttonView.getId()) {
             case R.id.cb_low_sugar:
                 cbLowSugar.setChecked(isChecked);
@@ -566,8 +557,7 @@ public class PersonalThreeActivity extends Activity implements OnClickListener, 
 
     }
 
-    private void uploadPersonalDetail(final Register register, final PersonalDetailOne detailOne, final PersonalDetailTwo detailTwo, final PersonalDetailThree detailThree)
-    {
+    private void uploadPersonalDetail(final Register register, final PersonalDetailOne detailOne, final PersonalDetailTwo detailTwo, final PersonalDetailThree detailThree) {
         try {
             JSONObject object = new JSONObject();
             object.put("name", register.getName())
@@ -600,12 +590,10 @@ public class PersonalThreeActivity extends Activity implements OnClickListener, 
             object.put("illness", detailThree.getIllness())
                     .put("body", detailThree.getPhysique());
 
-            System.out.println("detailThree.getPhysique() :" + detailThree.getPhysique());
 
             HttpRequest.post(URLConstant.URL_UPLOAD_PERSONAL_DETAIL, object.toString(), new HttpRequest.HttpRequestCallback() {
                 @Override
-                public void onSuccess(JSONObject response)
-                {
+                public void onSuccess(JSONObject response) {
                     if (response.optString("error").equals("0")) {
                         MethodUtils.showToast(getApplicationContext(), "基本信息提交成功");
 
@@ -622,8 +610,7 @@ public class PersonalThreeActivity extends Activity implements OnClickListener, 
                 }
 
                 @Override
-                public void onFailure()
-                {
+                public void onFailure() {
                     MethodUtils.showToast(getApplicationContext(), "请求失败, 请稍后重试");
                 }
             });
@@ -633,8 +620,7 @@ public class PersonalThreeActivity extends Activity implements OnClickListener, 
     }
 
 
-    private boolean checkFinish()
-    {
+    private boolean checkFinish() {
         if (!cbHighPressure.isChecked() && !cbHighXuezhi.isChecked()
                 && !cbCardiovas.isChecked() && !cbHighSugar.isChecked() && !cbLowSugar.isChecked()
                 && !cbArthritis.isChecked() && !cbNeckPain.isChecked()
@@ -656,8 +642,7 @@ public class PersonalThreeActivity extends Activity implements OnClickListener, 
     }
 
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         super.onDestroy();
         modelDao = null;
         EventBus.getDefault().unregister(this);

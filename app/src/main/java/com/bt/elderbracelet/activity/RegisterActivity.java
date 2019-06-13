@@ -4,10 +4,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -31,12 +29,8 @@ import com.bt.elderbracelet.data.ModelDao;
 import com.bt.elderbracelet.entity.Register;
 import com.bt.elderbracelet.entity.others.CityData;
 import com.bt.elderbracelet.entity.others.DistrictData;
-import com.bt.elderbracelet.entity.others.Event;
 import com.bt.elderbracelet.entity.others.ProvinceData;
-import com.bt.elderbracelet.okhttp.HttpRequest;
-import com.bt.elderbracelet.okhttp.URLConstant;
 import com.bt.elderbracelet.tools.MethodUtils;
-import com.bt.elderbracelet.tools.SpHelp;
 import com.bt.elderbracelet.view.ArrayWheelAdapter;
 import com.bt.elderbracelet.view.NumericWheelAdapter;
 import com.bt.elderbracelet.view.OnWheelChangedListener;
@@ -45,9 +39,6 @@ import com.bt.elderbracelet.view.WheelView;
 import com.bttow.elderbracelet.R;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -58,10 +49,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
 
-import de.greenrobot.event.EventBus;
-
-import static com.bt.elderbracelet.okhttp.URLConstant.URL_REGISTER;
-
 /**
  * 关于短信验证码码服务，服务器要做到几点，
  * 第一：在用户注册时，随机发送验证码，
@@ -71,8 +58,8 @@ import static com.bt.elderbracelet.okhttp.URLConstant.URL_REGISTER;
 public class RegisterActivity extends Activity implements OnClickListener {
     private TitleView2 titleView;    //标题栏
     private EditText etname, etnum, etPassword, etCid;  //名字，电话号码，密码，联系的客服编号
-    private EditText etInputCode;  //输入验证码
-    private TextView textGetCode;  //获取验证码
+    //    private EditText etInputCode;  //输入验证码
+//    private TextView textGetCode;  //获取验证码
     private EditText eturgentname, eturgentnum;      //紧急联系人姓名，紧急联系人电话号码
     private TextView tvProvince, tvCity, tvArea;      //省份，城市，区县
     private TextView age, sex, height, weight, tv_step_distance; //年龄，性别，身高，体重,步距
@@ -86,7 +73,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
     private String name, num, password, nsex, nage, nweight, nheight, nCid;
     private String nungentName, nungentNum, step_distance;
     private String province, city, area;
-    private String verifyCode;
+    //    private String verifyCode;
     private ModelDao modelDao;
     private PopupWindow popupWindow, popupWindowSex;
     //popupWindow 代表年龄，体重，身高，步距的弹出窗口
@@ -121,18 +108,16 @@ public class RegisterActivity extends Activity implements OnClickListener {
      */
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.bracelet_register);
         MyApplication.getInstance().addActivity(this);
-        EventBus.getDefault().register(this);
+//        EventBus.getDefault().register(this);
         init();
     }
 
-    private void init()
-    {
+    private void init() {
         modelDao = new ModelDao(getApplicationContext());
         titleView = (TitleView2) findViewById(R.id.titleview);    //标题栏
         titleView.setbg(R.drawable.register_titlebg);
@@ -145,9 +130,9 @@ public class RegisterActivity extends Activity implements OnClickListener {
         eturgentnum = (EditText) findViewById(R.id.eturgentnum);
         etCid = (EditText) findViewById(R.id.et_CID);
 
-        etInputCode = (EditText) findViewById(R.id.etInputCode);
-        textGetCode = (TextView) findViewById(R.id.textGetCode);
-        textGetCode.setOnClickListener(this);
+//        etInputCode = (EditText) findViewById(R.id.etInputCode);
+//        textGetCode = (TextView) findViewById(R.id.textGetCode);
+//        textGetCode.setOnClickListener(this);
 
         tvProvince = (TextView) findViewById(R.id.tv_Province);
         tvCity = (TextView) findViewById(R.id.tv_city);
@@ -174,8 +159,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
         argee_pro.setText(msp);                                  //设置了触发事件，但是点击事件为空
         argee_pro.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
             }
         });
 
@@ -185,8 +169,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
         tv_already_register.setText(msp_two);
         tv_already_register.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 Intent mintent = new Intent(getApplicationContext(), LoginActivity.class);
                 startActivity(mintent);
                 finish();
@@ -198,8 +181,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
         tv_forget_pwd.setText(msp_two);
         tv_forget_pwd.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 Intent mintent = new Intent(getApplicationContext(), ResetPwdActivity.class);
                 startActivity(mintent);
                 finish();
@@ -209,8 +191,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
         tvnext = (TextView) findViewById(R.id.tvbasic_next);    //下一步
         tvnext.setOnClickListener(new OnClickListener() {       //触发事件是将用户注册信息上传到服务器，同时又保存到本地数据库
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 name = etname.getText().toString().trim();
                 num = etnum.getText().toString().trim();
                 password = etPassword.getText().toString();
@@ -225,19 +206,31 @@ public class RegisterActivity extends Activity implements OnClickListener {
                 nungentName = eturgentname.getText().toString().trim();
                 nungentNum = eturgentnum.getText().toString().trim();
                 nCid = etCid.getText().toString().trim();
-                verifyCode = etInputCode.getText().toString().trim();
-
-                MyApplication.nStep_distance = step_distance;
+//                verifyCode = etInputCode.getText().toString().trim();
 
                 //检查输入是否合法
-                if (!checkInputIllegal())
-                    return;
-                if (MethodUtils.isWifi(getApplicationContext())
-                        || MethodUtils.is3G(getApplicationContext())) {
-                    attemptToRegister();    //将用户注册信息上传到服务器，同时又保存到本地数据库,
-                    //还会跳转到注册成功的界面
-                } else {
-                    MethodUtils.showToast(getApplicationContext(), "请检查网络是否良好");
+                if (checkInputIllegal()) {
+                    Register register = new Register();
+                    register.setName(name);
+                    register.setNum(num);
+                    register.setPassword(password);
+                    register.setProvince(province);
+                    register.setCity(city);
+                    register.setArea(area);
+
+                    register.setAge(nage);
+                    register.setSex(nsex);
+                    register.setWeight(nweight);
+                    register.setHeight(nheight);
+                    register.setStepDistance(step_distance);
+                    register.setUrgentContactName(nungentName);
+                    register.setUrgentContactPhone(nungentNum);
+                    register.setServiceId(nCid);
+
+                    Intent intent = new Intent(RegisterActivity.this, RegisterTwoActivity.class);
+                    intent.putExtra("password", password);
+                    intent.putExtra("registerInfo", register);
+                    startActivity(intent);
                 }
             }
         });
@@ -264,8 +257,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
         btnsureSex = (Button) viewWindowSex.findViewById(R.id.btnsure);
         btnsure.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 if (registerStatus == 1) {
                     age.setText(value + "");
                 } else if (registerStatus == 2) {
@@ -281,8 +273,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
 
         btnsureSex.setOnClickListener(new OnClickListener() {  //性别窗口的确定按钮
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 if (registerStatus == 4) {
                     if (value == 1) {
                         sex.setText("男");
@@ -324,8 +315,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
     }
 
 
-    private void initWheel()
-    {
+    private void initWheel() {
         wheel = (WheelView) viewWindow.findViewById(R.id.wvAge);
         wheel.setAdapter(new NumericWheelAdapter(0, 200));
         wheel.addChangingListener(changedListener);        //给数据选择器设置监听器
@@ -333,8 +323,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
         wheel.setInterpolator(new AnticipateOvershootInterpolator());
     }
 
-    private void initWheelSex()
-    {
+    private void initWheelSex() {
         wheelSex = (WheelView) viewWindowSex.findViewById(R.id.wvSex);
         String countries[] = new String[]{"女", "男"};
         wheelSex.setVisibleItems(3);
@@ -347,177 +336,102 @@ public class RegisterActivity extends Activity implements OnClickListener {
 
     //数据选择器的触发器
     private OnWheelChangedListener changedListener = new OnWheelChangedListener() {
-        public void onChanged(WheelView wheel, int oldValue, int newValue)
-        {
+        public void onChanged(WheelView wheel, int oldValue, int newValue) {
             value = newValue;
         }
     };
 
-
-   /*  重点，重点，重点来了，这里将注册信息上传到服务器，
-      同时，将注册信息又保存在本地数据库*/
-
-    private void attemptToRegister()
-    {
-        JSONObject userInfo = new JSONObject();
-        try {
-            userInfo.put("name", name)
-                    .put("phone", num)
-                    .put("password", password)
-                    .put("province", province)
-                    .put("city", city)
-                    .put("area", area)
-                    .put("age", nage)
-                    .put("sex", nsex)
-                    .put("height", nheight)
-                    .put("weight", nweight)
-                    .put("stepDistance", step_distance)
-                    .put("urgentName", nungentName)
-                    .put("urgentPhone", nungentNum)
-                    .put("cId", nCid)
-                    .put("verifyCode", verifyCode);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        System.out.println(verifyCode);
-        HttpRequest.post(URL_REGISTER, userInfo.toString(), new HttpRequest.HttpRequestCallback() {
-            @Override
-            public void onSuccess(JSONObject response)
-            {
-                if (response.optString("error").equals("0")) {
-
-                    MethodUtils.showToast(getApplicationContext(), "注册成功");
-                    Register register = new Register();
-                    register.setName(name);
-                    register.setNum(num);
-                    register.setProvince(province);
-                    register.setCity(city);
-                    register.setArea(area);
-
-                    register.setAge(nage);
-                    register.setSex(nsex);
-                    register.setWeight(nweight);
-                    register.setHeight(nheight);
-                    register.setStepDistance(step_distance);
-                    register.setUrgentContactName(nungentName);
-                    register.setUrgentContactPhone(nungentNum);
-                    register.setServiceId(nCid);
-                    modelDao.insertRegister(register);         //将用户注册信息保存到本地数据库
-                    SpHelp.saveUserId(num);
-
-                    Intent intent = new Intent(getApplicationContext(), BoundSuccessActivity.class);  //同时跳转到“注册成功界面”
-                    startActivity(intent);
-                    finish();
-                } else {
-                    MethodUtils.showToast(getApplicationContext(), "注册失败: " + response.optString("error_info"));
-                }
-            }
-
-            @Override
-            public void onFailure()
-            {
-                MethodUtils.showToast(getApplicationContext(), "请求失败, 请稍后重试");
-            }
-        });
-    }
-
-    public void getVerifyCode()
-    {
-        JSONObject object = new JSONObject();
-        try {
-            object.put("phone", etnum.getText().toString().trim());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        HttpRequest.post(URLConstant.URL_GET_VERIFY_CODE, object.toString(), new HttpRequest.HttpRequestCallback() {
-            @Override
-            public void onSuccess(JSONObject response)
-            {
-                if (response.optString("error").equals("0")) {
-                    MethodUtils.showToast(getApplicationContext(), "验证码获取成功");
-                } else {
-                    MethodUtils.showToast(getApplicationContext(), "验证码获取失败: " + response.optString("error_info"));
-                }
-            }
-
-            @Override
-            public void onFailure()
-            {
-                MethodUtils.showToast(getApplicationContext(), "请求失败, 请稍后重试");
-            }
-        });
-    }
+//    public void getVerifyCode() {
+//        JSONObject object = new JSONObject();
+//        try {
+//            object.put("phone", etnum.getText().toString().trim());
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//        HttpRequest.post(URLConstant.URL_GET_VERIFY_CODE, object.toString(), new HttpRequest.HttpRequestCallback() {
+//            @Override
+//            public void onSuccess(JSONObject response) {
+//                if (response.optString("error").equals("0")) {
+//                    MethodUtils.showToast(getApplicationContext(), "验证码获取成功");
+//                } else {
+//                    MethodUtils.showToast(getApplicationContext(), "验证码获取失败: " + response.optString("error_info"));
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure() {
+//                MethodUtils.showToast(getApplicationContext(), "请求失败, 请稍后重试");
+//            }
+//        });
+//    }
 
     public int count = INTERVAL_TIME;
     public Timer timer = null;
     public TimerTask task = null;
     public Message msg = null;
 
-    public Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg)
-        {
-            super.handleMessage(msg);
-            String content = (String) (msg.obj);
-            textGetCode.setText(content);
-            if (!textGetCode.isClickable() && content.equals("重新获取")) {
-                textGetCode.setClickable(true);
-                textGetCode.setBackgroundColor(getResources().getColor(R.color.distance_color));
-            }
-        }
-    };
+//    public Handler handler = new Handler() {
+//        @Override
+//        public void handleMessage(Message msg) {
+//            super.handleMessage(msg);
+//            String content = (String) (msg.obj);
+//            textGetCode.setText(content);
+//            if (!textGetCode.isClickable() && content.equals("重新获取")) {
+//                textGetCode.setClickable(true);
+//                textGetCode.setBackgroundColor(getResources().getColor(R.color.distance_color));
+//            }
+//        }
+//    };
 
 
     @Override
-    public void onClick(View v)
-    {
+    public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.textGetCode:
-
-                if (TextUtils.isEmpty(etnum.getText().toString())) {
-                    MethodUtils.showToast(RegisterActivity.this, "请先输入电话号码");
-                    return;
-                }
-                if (!Pattern.matches("^1[3|4|5|8][0-9]\\d{8}$", etnum.getText().toString().trim())) {
-                    MethodUtils.showToast(getApplicationContext(), "手机号码格式不对，请输入正确的手机号码");
-                    return;
-                }
-                textGetCode.setClickable(false);
-                textGetCode.setBackgroundColor(Color.parseColor("#363738"));
-
-                timer = new Timer(true);
-                task = new TimerTask() {
-                    @Override
-                    public void run()
-                    {
-                        msg = new Message();
-                        msg.obj = count + "秒";
-                        handler.sendMessage(msg);
-                        if (count == 0) {
-                            task.cancel();
-                            task = null;
-                            timer.cancel();
-                            timer = null;
-                            msg = new Message();
-                            msg.obj = "重新获取";
-                            count = INTERVAL_TIME;
-                            handler.sendMessage(msg);
-                        }
-                        count--;
-                    }
-                };
-                timer.schedule(task, 0, 1000);
-
-                /**
-                 *  向服务器获取验证码
-                 */
-                if (MethodUtils.isWifi(getApplicationContext())
-                        || MethodUtils.is3G(getApplicationContext())) {
-                    getVerifyCode();
-                } else {
-                    MethodUtils.showToast(getApplicationContext(), "请检查网络是否良好");
-                }
-                break;
+//            case R.id.textGetCode:
+//
+//                if (TextUtils.isEmpty(etnum.getText().toString())) {
+//                    MethodUtils.showToast(RegisterActivity.this, "请先输入电话号码");
+//                    return;
+//                }
+//                if (!Pattern.matches("^1[3|4|5|8][0-9]\\d{8}$", etnum.getText().toString().trim())) {
+//                    MethodUtils.showToast(getApplicationContext(), "手机号码格式不对，请输入正确的手机号码");
+//                    return;
+//                }
+//                textGetCode.setClickable(false);
+//                textGetCode.setBackgroundColor(Color.parseColor("#363738"));
+//
+//                timer = new Timer(true);
+//                task = new TimerTask() {
+//                    @Override
+//                    public void run() {
+//                        msg = new Message();
+//                        msg.obj = count + "秒";
+//                        handler.sendMessage(msg);
+//                        if (count == 0) {
+//                            task.cancel();
+//                            task = null;
+//                            timer.cancel();
+//                            timer = null;
+//                            msg = new Message();
+//                            msg.obj = "重新获取";
+//                            count = INTERVAL_TIME;
+//                            handler.sendMessage(msg);
+//                        }
+//                        count--;
+//                    }
+//                };
+//                timer.schedule(task, 0, 1000);
+//
+//                /**
+//                 *  向服务器获取验证码
+//                 */
+//                if (MethodUtils.isWifi(getApplicationContext())
+//                        || MethodUtils.is3G(getApplicationContext())) {
+//                    getVerifyCode();
+//                } else {
+//                    MethodUtils.showToast(getApplicationContext(), "请检查网络是否良好");
+//                }
+//                break;
             case R.id.tvage:
                 registerStatus = 1;
                 value = 55;
@@ -612,11 +526,10 @@ public class RegisterActivity extends Activity implements OnClickListener {
         }
     }
 
-    private void showProvinceListDialog()
-    {
+    private void showProvinceListDialog() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        //  builder.setTitle("请选择省份");
+//        builder.setTitle("请选择省份");
         /**
 
          * 1、public Builder setItems(int itemsId, final OnClickListener
@@ -630,8 +543,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
          */
         builder.setItems(proNameArray, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which)
-            {
+            public void onClick(DialogInterface dialog, int which) {
                 //点击了选项以后，要干很多事情
                 tvProvince.setText(proNameArray[which]);       //第一：更新界面
                 tvCity.setText("");
@@ -645,8 +557,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
 
     }
 
-    private void showcityListDialog(int position)
-    {
+    private void showcityListDialog(int position) {
 
         cityData.clear();//添加数据前，先删除旧数据
         cityNameList.clear();
@@ -678,8 +589,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
 
             @Override
 
-            public void onClick(DialogInterface dialog, int which)
-            {
+            public void onClick(DialogInterface dialog, int which) {
                 tvCity.setText(citys[which]);
                 tvArea.setText("");
                 dialog.dismiss();
@@ -691,8 +601,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
 
     }
 
-    private void citysForAreaDialog(int position)
-    {
+    private void citysForAreaDialog(int position) {
         cityData.clear();//添加数据前，先删除旧数据
         cityNameList.clear();
         cityCheckData.clear();
@@ -724,8 +633,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
 
     }
 
-    private void showAreaListDialog(int position)
-    {
+    private void showAreaListDialog(int position) {
         districtNameList.clear();
         disData.clear();
         disCheckData.clear();
@@ -755,8 +663,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
 
             @Override
 
-            public void onClick(DialogInterface dialog, int which)
-            {
+            public void onClick(DialogInterface dialog, int which) {
                 tvArea.setText(areas[which]);
                 dialog.dismiss();
             }
@@ -776,8 +683,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
      * @return
      * @throws IOException
      */
-    public <T> List<T> getLocData(String fileName, Type collectionType) throws IOException
-    {
+    public <T> List<T> getLocData(String fileName, Type collectionType) throws IOException {
         //获取assets目录下的json文件
         reader = new InputStreamReader(getAssets().open(fileName));
         List<T> locDatas = gson.fromJson(reader, collectionType);
@@ -785,8 +691,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
         return locDatas;
     }
 
-    private boolean checkInputIllegal()
-    {
+    private boolean checkInputIllegal() {
         if (TextUtils.isEmpty(name)) {
             MethodUtils.showToast(getApplicationContext(), "姓名不能为空");
             return false;
@@ -799,10 +704,10 @@ public class RegisterActivity extends Activity implements OnClickListener {
             MethodUtils.showToast(getApplicationContext(), "手机号码格式不对，请输入正确的手机号码");
             return false;
         }
-        if (TextUtils.isEmpty(verifyCode)) {
-            MethodUtils.showToast(getApplicationContext(), "验证码不能为空");
-            return false;
-        }
+//        if (TextUtils.isEmpty(verifyCode)) {
+//            MethodUtils.showToast(getApplicationContext(), "验证码不能为空");
+//            return false;
+//        }
         if (TextUtils.isEmpty(password)) {
             MethodUtils.showToast(getApplicationContext(), "密码不能为空");
             return false;
@@ -866,31 +771,27 @@ public class RegisterActivity extends Activity implements OnClickListener {
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event)
-    {
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
         return keyCode != KeyEvent.KEYCODE_BACK && super.onKeyDown(keyCode, event);
     }
 
-    public void onEventMainThread(Event event)
-    {
-        if (!TextUtils.isEmpty(event.msg)) {
-            System.out.println(event.msg);
-            if (event.msg.contains("验证码是："))
-                etInputCode.setText(getCodeFromMsg(event.msg));
-        }
-    }
+//    public void onEventMainThread(Event event) {
+//        if (!TextUtils.isEmpty(event.msg)) {
+//            System.out.println(event.msg);
+//            if (event.msg.contains("验证码是："))
+//                etInputCode.setText(getCodeFromMsg(event.msg));
+//        }
+//    }
 
-    public String getCodeFromMsg(String msg)
-    {
+    public String getCodeFromMsg(String msg) {
         String[] strs = msg.split("验证码是：");
         return strs[1].substring(0, 4);
     }
 
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
+//        EventBus.getDefault().unregister(this);
         if (timer != null) {
             timer.cancel();
             timer = null;

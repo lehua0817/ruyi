@@ -58,21 +58,21 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_sure:
-//                str_num = et_num.getText().toString().trim();
-//                if (!TextUtils.isEmpty(str_num) && str_num.length() == 11) {
-//
-//                    if (MethodUtils.is3G(getApplicationContext()) || MethodUtils.isWifi(getApplicationContext())) {
-//                        attemptAlreadyRegister();
-//                    } else {
-//                        MethodUtils.showToast(getApplicationContext(), "请检查网络是否正常!");
-//                    }
-//                } else {
-//                    MethodUtils.showToast(getApplicationContext(), "电话号码不存在");
-//                }
-                SpHelp.saveUserId("13368176003");
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(intent);
-                finish();
+                str_num = et_num.getText().toString().trim();
+                if (!TextUtils.isEmpty(str_num) && str_num.length() == 11) {
+
+                    if (MethodUtils.is3G(getApplicationContext()) || MethodUtils.isWifi(getApplicationContext())) {
+                        attemptAlreadyRegister();
+                    } else {
+                        MethodUtils.showToast(getApplicationContext(), "请检查网络是否正常!");
+                    }
+                } else {
+                    MethodUtils.showToast(getApplicationContext(), "电话号码不存在");
+                }
+//                SpHelp.saveUserId("13368176003");
+//                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+//                startActivity(intent);
+//                finish();
                 break;
         }
     }
@@ -114,6 +114,14 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                         register.setUrgentContactName(data.optString("urgentName"));
                         register.setUrgentContactPhone(data.optString("urgentPhone"));
                         register.setServiceId(data.optString("cId"));
+
+                        register.setArt(data.optString("art"));
+                        register.setSportsRate(data.optString("sportsRate"));
+                        register.setDiet(data.optString("diet"));
+                        register.setSmoke(data.optString("smoke"));
+                        register.setDrink(data.optString("drink"));
+                        register.setAllergic(data.optString("llergic"));
+                        register.setIllness(data.optString("illness"));
 
                         modelDao.insertRegister(register);
                         SpHelp.saveUserId(data.optString("phone"));

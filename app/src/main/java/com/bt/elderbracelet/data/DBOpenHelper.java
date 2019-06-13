@@ -3,13 +3,11 @@ package com.bt.elderbracelet.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 public class DBOpenHelper extends SQLiteOpenHelper {
     private static final String DBNAME = "bracelet.db";
 
-    public DBOpenHelper(Context context)
-    {
+    public DBOpenHelper(Context context) {
         super(context, DBNAME, null, 15);
     }
 
@@ -32,6 +30,14 @@ public class DBOpenHelper extends SQLiteOpenHelper {
     public static String urgentContactName = "urgentContactName";
     public static String urgentContactPhone = "urgentContactPhone";
     public static String serviceId = "serviceId";
+
+    public static String art = "art";
+    public static String sportsRate = "sportsRate";
+    public static String diet = "diet";
+    public static String smoke = "smoke";
+    public static String drink = "drink";
+    public static String allergic = "allergic";
+    public static String illness = "illness";
 
 
     /**
@@ -99,9 +105,9 @@ public class DBOpenHelper extends SQLiteOpenHelper {
     public static String sleepDeepTime = "sleepDeepTime";
 
 
+
     @Override
-    public void onCreate(SQLiteDatabase db)
-    {
+    public void onCreate(SQLiteDatabase db) {
         // TODO Auto-generated method stub
 
         String registerSql = "create table if not exists " + RegisterTable + "(" +
@@ -119,7 +125,14 @@ public class DBOpenHelper extends SQLiteOpenHelper {
                 "stepDistance text," +
                 "urgentContactName text," +
                 "urgentContactPhone text," +
-                "serviceId text" + ")";
+                "serviceId text," +
+                "art text," +
+                "sportsRate text," +
+                "diet text," +
+                "smoke text," +
+                "drink text," +
+                "allergic text," +
+                "illness text" + ")";
         db.execSQL(registerSql);
 
         String bloodPressureSql = "create table if not exists " + BloodPressureTable + "(" +
@@ -172,7 +185,6 @@ public class DBOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
-    {
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     }
 }

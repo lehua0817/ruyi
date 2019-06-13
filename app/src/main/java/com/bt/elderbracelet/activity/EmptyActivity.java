@@ -32,9 +32,9 @@ public class EmptyActivity extends Activity {
             MyApplication.remoteService = IRemoteService.Stub.asInterface(service);
             mService = MyApplication.remoteService;
             // todo 这里设置userID只是为了测试使用
-            SpHelp.saveUserId("13368176003");
+//            SpHelp.saveUserId("13368176003");
             Log.v(TAG, "Mac = " + SpHelp.getDeviceMac());
-            if (!TextUtils.isEmpty(SpHelp.getDeviceMac())) {
+            if (!TextUtils.isEmpty(SpHelp.getDeviceMac()) && !TextUtils.isEmpty(SpHelp.getUserId())) {
                 intent = new Intent(EmptyActivity.this, MainActivity.class);
             } else {
                 intent = new Intent(EmptyActivity.this, BindActivity.class);

@@ -3,7 +3,6 @@ package com.bt.elderbracelet.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -12,19 +11,22 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 import com.bonten.ble.application.MyApplication;
-import com.bt.elderbracelet.entity.others.Event;
-import com.bt.elderbracelet.entity.others.PersonalDetailOne;
-import com.bt.elderbracelet.entity.others.PersonalDetailTwo;
+import com.bt.elderbracelet.data.ModelDao;
 import com.bt.elderbracelet.entity.Register;
+import com.bt.elderbracelet.okhttp.HttpRequest;
 import com.bt.elderbracelet.tools.MethodUtils;
 import com.bt.elderbracelet.tools.SpHelp;
 import com.bt.elderbracelet.view.TitleView;
 import com.bt.elderbracelet.view.TitleView.onBackLister;
 import com.bttow.elderbracelet.R;
 
-import java.util.ArrayList;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import de.greenrobot.event.EventBus;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.bt.elderbracelet.okhttp.URLConstant.URL_REGISTER;
 
 /**
  * 提醒类
@@ -34,26 +36,32 @@ import de.greenrobot.event.EventBus;
 public class PersonalTwoActivity extends Activity implements OnClickListener, CompoundButton.OnCheckedChangeListener {
 
     TitleView titleview;
+    //文化娱乐
     CheckBox cbBooks;
     CheckBox cbDrama;
     CheckBox cbDance;
     CheckBox cbOther;
+    //体育锻炼
     CheckBox cbTrainEveryDay;
     CheckBox cbTrainManyEveryWeek;
     CheckBox cbTrainOccasionally;
     CheckBox cbTrainNever;
+    //饮食习惯
     CheckBox cbMeatAndVegetables;
     CheckBox cbMeatMain;
     CheckBox cbVegetablesMain;
     CheckBox cbAddictedToSalt;
     CheckBox cbAddictedToOil;
+    // 抽烟情况
     CheckBox cbSmokeNever;
     CheckBox cbSmokeQuit;
     CheckBox cbSmoking;
+    // 喝酒情况
     CheckBox cbDrinkNever;
     CheckBox cbDrinkOccasionally;
     CheckBox cbDrinkFrequency;
     CheckBox cbDrinkEveryDay;
+    // 过敏情况
     CheckBox cbHighProteinFood;
     CheckBox cbSeafood;
     CheckBox cbPollen;
@@ -63,43 +71,60 @@ public class PersonalTwoActivity extends Activity implements OnClickListener, Co
     CheckBox cbAlcohol;
     CheckBox cbPaint;
     CheckBox cbNothing;
-    Button btnNextPage;
+    // 以往病史
+    CheckBox cbHighPressure;
+    CheckBox cbHighXuezhi;
+    CheckBox cbCardiovas;
+    CheckBox cbHighSugar;
+    CheckBox cbLowSugar;
+    CheckBox cbArthritis;
+    CheckBox cbNeckPain;
+    CheckBox cbRheumaticPain;
+    CheckBox cbDisorders;
+    CheckBox cbBreathDiseases;
+    CheckBox cbEyeDisease;
+    CheckBox cbLiverDisease;
+    CheckBox cbTumor;
+    CheckBox cbSubHealth;
+    CheckBox cbOthers;
 
-    private PersonalDetailOne detailOne;
-    private PersonalDetailTwo detailTwo;
+    Button btnRegister;
 
     private Register registerInfo;
-    private Intent myIntent;
+
+    private String art = "";         // 喜欢的文娱项目
+    private String sportsRate = "";  // 体育锻炼频道
+    private String diet = "";        // 饮食习惯
+    private String smoke = "";       // 抽烟状况
+    private String drink = "";       // 喝酒状况
+    private String allergic = "";     // 过敏情况
+    private String illness = "";      // 患病情况
+
+    private List<String> hobbyList = new ArrayList<>();
+    private List<String> dietList = new ArrayList<>();
+    private List<String> allergicList = new ArrayList<>();
+    private List<String> illnessList = new ArrayList<>();
+    private ModelDao modelDao;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.bracelet_presonal_two_page);
+        setContentView(R.layout.register_two);
         MyApplication.getInstance().addActivity(this);
-        EventBus.getDefault().register(this);
         initView();
         initListener();
-    }
-
-    @Override
-    protected void onResume()
-    {
-        super.onResume();
         initData();
     }
 
-    private void initView()
-    {
+    private void initView() {
         titleview = (TitleView) findViewById(R.id.titleview);
         titleview.setTitle(R.string.parsonal_basic_info);
         titleview.setcolor("#76c5f0");
         titleview.settextcolor("#ffffff");
         titleview.setBack(R.drawable.steps_back, new onBackLister() {
             @Override
-            public void onClick(View button)
-            {
+            public void onClick(View button) {
                 finish();
             }
         });
@@ -145,11 +170,27 @@ public class PersonalTwoActivity extends Activity implements OnClickListener, Co
         cbPaint = (CheckBox) findViewById(R.id.cb_paint);
         cbNothing = (CheckBox) findViewById(R.id.cb_nothing);
 
-        btnNextPage = (Button) findViewById(R.id.btn_next_page);
+        // 以往病史(多选)
+        cbHighPressure = (CheckBox) findViewById(R.id.cb_high_pressure);
+        cbHighXuezhi = (CheckBox) findViewById(R.id.high_xuezhi);
+        cbCardiovas = (CheckBox) findViewById(R.id.cb_cardiovas);
+        cbHighSugar = (CheckBox) findViewById(R.id.cb_high_sugar);
+        cbLowSugar = (CheckBox) findViewById(R.id.cb_low_sugar);
+        cbArthritis = (CheckBox) findViewById(R.id.cb_arthritis);
+        cbNeckPain = (CheckBox) findViewById(R.id.cb_neck_pain);
+        cbRheumaticPain = (CheckBox) findViewById(R.id.cb_rheumatic_pain);
+        cbDisorders = (CheckBox) findViewById(R.id.cb_disorders);
+        cbBreathDiseases = (CheckBox) findViewById(R.id.cb_breath_diseases);
+        cbEyeDisease = (CheckBox) findViewById(R.id.cb_eye_disease);
+        cbLiverDisease = (CheckBox) findViewById(R.id.cb_Liver_disease);
+        cbTumor = (CheckBox) findViewById(R.id.cb_tumor);
+        cbSubHealth = (CheckBox) findViewById(R.id.cb_sub_health);
+        cbOthers = (CheckBox) findViewById(R.id.cb_others);
+
+        btnRegister = (Button) findViewById(R.id.btn_register);
     }
 
-    private void initListener()
-    {
+    private void initListener() {
         cbNothing.setOnCheckedChangeListener(this);
         cbPaint.setOnCheckedChangeListener(this);
         cbAlcohol.setOnCheckedChangeListener(this);
@@ -179,87 +220,146 @@ public class PersonalTwoActivity extends Activity implements OnClickListener, Co
         cbDrama.setOnCheckedChangeListener(this);
         cbBooks.setOnCheckedChangeListener(this);
         cbDance.setOnCheckedChangeListener(this);
-        btnNextPage.setOnClickListener(this);
+
+        cbHighPressure.setOnCheckedChangeListener(this);
+        cbHighXuezhi.setOnCheckedChangeListener(this);
+        cbCardiovas.setOnCheckedChangeListener(this);
+        cbHighSugar.setOnCheckedChangeListener(this);
+        cbLowSugar.setOnCheckedChangeListener(this);
+        cbArthritis.setOnCheckedChangeListener(this);
+        cbNeckPain.setOnCheckedChangeListener(this);
+        cbRheumaticPain.setOnCheckedChangeListener(this);
+        cbDisorders.setOnCheckedChangeListener(this);
+        cbBreathDiseases.setOnCheckedChangeListener(this);
+        cbEyeDisease.setOnCheckedChangeListener(this);
+        cbLiverDisease.setOnCheckedChangeListener(this);
+        cbTumor.setOnCheckedChangeListener(this);
+        cbSubHealth.setOnCheckedChangeListener(this);
+        cbOthers.setOnCheckedChangeListener(this);
+
+        btnRegister.setOnClickListener(this);
     }
 
-    private void initData()
-    {
-        MyApplication.hobbyList = new ArrayList<>();
-        MyApplication.dietList = new ArrayList<>();
-        MyApplication.allergicList = new ArrayList<>();
-
-        myIntent = getIntent();
-        registerInfo = (Register) myIntent.getSerializableExtra("registerInfo");
-
-        detailOne = (PersonalDetailOne) myIntent.getSerializableExtra("detailOne");
-        if (SpHelp.getObject(SpHelp.PERSONAL_DETAIL_TWO)== null) {
-            detailTwo = new PersonalDetailTwo();
-        } else {
-            detailTwo = (PersonalDetailTwo) SpHelp.getObject(SpHelp.PERSONAL_DETAIL_TWO);
-        }
-        initDetailTwo(detailTwo);
+    private void initData() {
+        modelDao = new ModelDao(this);
+        registerInfo = (Register) getIntent().getSerializableExtra("registerInfo");
     }
 
 
     @Override
-    public void onClick(View v)
-    {
-        if (v.getId() == R.id.btn_next_page) {
+    public void onClick(View v) {
+        if (v.getId() == R.id.btn_register) {
 
             if (!checkFinish()) {
                 return;
             }
             Intent intent = new Intent(getApplicationContext(), PersonalThreeActivity.class);
             Bundle bundle = new Bundle();
-            if (null != detailOne) {
-                bundle.putSerializable("detailOne", detailOne);
-            }
 
-            if (MyApplication.hobbyList != null && MyApplication.hobbyList.size() > 0) {
+            if (hobbyList != null && hobbyList.size() > 0) {
                 StringBuilder builder = new StringBuilder("");
-                for (String hobby : MyApplication.hobbyList) {
+                for (String hobby : hobbyList) {
                     builder.append(hobby).append("@");
                 }
                 builder.deleteCharAt(builder.length() - 1);
-                detailTwo.setHobby(builder.toString());
-            } else {
-                detailTwo.setHobby("");
+                art = builder.toString();
             }
-            if (MyApplication.dietList != null && MyApplication.dietList.size() > 0) {
+            if (dietList != null && dietList.size() > 0) {
                 StringBuilder builder = new StringBuilder("");
-                for (String diet : MyApplication.dietList) {
+                for (String diet : dietList) {
                     builder.append(diet).append("@");
                 }
                 builder.deleteCharAt(builder.length() - 1);
-                detailTwo.setDiet(builder.toString());
-            } else {
-                detailTwo.setDiet("");
+                diet = builder.toString();
             }
-            if (MyApplication.allergicList != null && MyApplication.allergicList.size() > 0) {
+            if (allergicList != null && allergicList.size() > 0) {
                 StringBuilder builder = new StringBuilder("");
-                for (String allergic : MyApplication.allergicList) {
+                for (String allergic : allergicList) {
                     builder.append(allergic).append("@");
                 }
                 builder.deleteCharAt(builder.length() - 1);
-                detailTwo.setAllergic(builder.toString());
-            } else {
-                detailTwo.setAllergic("");
+                allergic = builder.toString();
             }
 
-            if (null != detailTwo) {
-                bundle.putSerializable("detailTwo", detailTwo);
+            if (illnessList != null && illnessList.size() > 0) {
+                StringBuilder builder = new StringBuilder("");
+
+                for (String illness : illnessList) {
+                    builder.append(illness).append("@");
+                }
+                builder.deleteCharAt(builder.length() - 1);
+                illness = builder.toString();
             }
-            if (null != registerInfo) {
-                bundle.putSerializable("registerInfo", registerInfo);
-            }
-            intent.putExtras(bundle);
-            startActivity(intent);
-            finish();
+
+            registerInfo.setArt(art);
+            registerInfo.setSportsRate(sportsRate);
+            registerInfo.setDiet(diet);
+            registerInfo.setSmoke(smoke);
+            registerInfo.setDrink(drink);
+            registerInfo.setAllergic(allergic);
+            registerInfo.setIllness(illness);
+
+            attemptToRegister();
         }
     }
 
-    private boolean checkFinish()
-    {
+
+   /*  重点，重点，重点来了，这里将注册信息上传到服务器，
+      同时，将注册信息又保存在本地数据库*/
+
+    private void attemptToRegister() {
+        JSONObject userInfo = new JSONObject();
+        try {
+            userInfo.put("name", registerInfo.getName())
+                    .put("phone", registerInfo.getNum())
+                    .put("password", registerInfo.getPassword())
+                    .put("province", registerInfo.getProvince())
+                    .put("city", registerInfo.getCity())
+                    .put("area", registerInfo.getArea())
+                    .put("age", registerInfo.getAge())
+                    .put("sex", registerInfo.getSex())
+                    .put("height", registerInfo.getHeight())
+                    .put("weight", registerInfo.getWeight())
+                    .put("stepDistance", registerInfo.getStepDistance())
+                    .put("urgentName", registerInfo.getUrgentContactName())
+                    .put("urgentPhone", registerInfo.getUrgentContactPhone())
+                    .put("cId", registerInfo.getServiceId())
+
+                    .put("art", registerInfo.getArt())
+                    .put("sportsRate", registerInfo.getSportsRate())
+                    .put("diet", registerInfo.getDiet())
+                    .put("smoke", registerInfo.getSmoke())
+                    .put("drink", registerInfo.getDrink())
+                    .put("allergic", registerInfo.getAllergic())
+                    .put("illness", registerInfo.getIllness());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        HttpRequest.post(URL_REGISTER, userInfo.toString(), new HttpRequest.HttpRequestCallback() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                if (response.optString("error").equals("0")) {
+
+                    MethodUtils.showToast(getApplicationContext(), "注册成功");
+                    modelDao.insertRegister(registerInfo);         //将用户注册信息保存到本地数据库
+                    SpHelp.saveUserId(registerInfo.getNum());
+
+                    Intent intent = new Intent(getApplicationContext(), BoundSuccessActivity.class);  //同时跳转到“注册成功界面”
+                    startActivity(intent);
+                    finish();
+                } else {
+                    MethodUtils.showToast(getApplicationContext(), "注册失败: " + response.optString("error_info"));
+                }
+            }
+
+            @Override
+            public void onFailure() {
+                MethodUtils.showToast(getApplicationContext(), "请求失败, 请稍后重试");
+            }
+        });
+    }
+
+    private boolean checkFinish() {
         if (!cbBooks.isChecked() && !cbDrama.isChecked()
                 && !cbDance.isChecked() && !cbOther.isChecked()) {
             MethodUtils.showToast(PersonalTwoActivity.this, "请完善个人兴趣爱好");
@@ -298,52 +398,61 @@ public class PersonalTwoActivity extends Activity implements OnClickListener, Co
             MethodUtils.showToast(PersonalTwoActivity.this, "请完善个人过敏情况");
             return false;
         }
+
+        if (!cbHighPressure.isChecked() && !cbHighXuezhi.isChecked()
+                && !cbCardiovas.isChecked() && !cbHighSugar.isChecked()
+                && !cbLowSugar.isChecked() && !cbArthritis.isChecked()
+                && !cbNeckPain.isChecked() && !cbRheumaticPain.isChecked() && !cbDisorders.isChecked()
+                && !cbBreathDiseases.isChecked() && !cbEyeDisease.isChecked() && !cbLiverDisease.isChecked()
+                && !cbTumor.isChecked() && !cbSubHealth.isChecked() && !cbOthers.isChecked()) {
+            MethodUtils.showToast(PersonalTwoActivity.this, "请完善个人以往患病情况");
+            return false;
+        }
         return true;
     }
 
     @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-    {
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         switch (buttonView.getId()) {
 
             // 设置 兴趣爱好
             case R.id.cb_other:
                 cbOther.setChecked(isChecked);
                 if (isChecked) {
-                    MyApplication.hobbyList.add("其他");
+                    hobbyList.add("其他");
                 } else {
-                    MyApplication.hobbyList.remove("其他");
+                    hobbyList.remove("其他");
                 }
                 break;
             case R.id.cb_dance:
                 cbDance.setChecked(isChecked);
                 if (isChecked) {
-                    MyApplication.hobbyList.add("舞蹈");
+                    hobbyList.add("舞蹈");
                 } else {
-                    MyApplication.hobbyList.remove("舞蹈");
+                    hobbyList.remove("舞蹈");
                 }
                 break;
             case R.id.cb_drama:
                 cbDrama.setChecked(isChecked);
                 if (isChecked) {
-                    MyApplication.hobbyList.add("戏曲");
+                    hobbyList.add("戏曲");
                 } else {
-                    MyApplication.hobbyList.remove("戏曲");
+                    hobbyList.remove("戏曲");
                 }
                 break;
             case R.id.cb_books:
                 cbBooks.setChecked(isChecked);
                 if (isChecked) {
-                    MyApplication.hobbyList.add("评书");
+                    hobbyList.add("评书");
                 } else {
-                    MyApplication.hobbyList.remove("评书");
+                    hobbyList.remove("评书");
                 }
                 break;
 
             //设置锻炼频率
             case R.id.cb_train_never:
                 if (isChecked) {
-                    detailTwo.setSport("不锻炼");
+                    sportsRate = "不锻炼";
                     cbTrainNever.setChecked(true);
                     cbTrainOccasionally.setChecked(false);
                     cbTrainManyEveryWeek.setChecked(false);
@@ -352,7 +461,7 @@ public class PersonalTwoActivity extends Activity implements OnClickListener, Co
                 break;
             case R.id.cb_train_occasionally:
                 if (isChecked) {
-                    detailTwo.setSport("偶尔");
+                    sportsRate = "偶尔";
                     cbTrainNever.setChecked(false);
                     cbTrainOccasionally.setChecked(true);
                     cbTrainManyEveryWeek.setChecked(false);
@@ -362,7 +471,7 @@ public class PersonalTwoActivity extends Activity implements OnClickListener, Co
 
             case R.id.cb_train_many_every_week:
                 if (isChecked) {
-                    detailTwo.setSport("每周多次");
+                    sportsRate = "每周多次";
                     cbTrainNever.setChecked(false);
                     cbTrainOccasionally.setChecked(false);
                     cbTrainManyEveryWeek.setChecked(true);
@@ -371,7 +480,7 @@ public class PersonalTwoActivity extends Activity implements OnClickListener, Co
                 break;
             case R.id.cb_train_every_day:
                 if (isChecked) {
-                    detailTwo.setSport("每天");
+                    sportsRate = "每天";
                     cbTrainNever.setChecked(false);
                     cbTrainOccasionally.setChecked(false);
                     cbTrainManyEveryWeek.setChecked(false);
@@ -379,24 +488,23 @@ public class PersonalTwoActivity extends Activity implements OnClickListener, Co
                 }
                 break;
 
-
             //设置饮食习惯
             case R.id.cb_Addicted_to_oil:
                 if (isChecked) {
                     cbAddictedToOil.setChecked(true);
-                    MyApplication.dietList.add("嗜油");
+                    dietList.add("嗜油");
                 } else {
                     cbAddictedToOil.setChecked(false);
-                    MyApplication.dietList.remove("嗜油");
+                    dietList.remove("嗜油");
                 }
                 break;
             case R.id.cb_addicted_to_salt:
                 if (isChecked) {
                     cbAddictedToSalt.setChecked(true);
-                    MyApplication.dietList.add("嗜盐");
+                    dietList.add("嗜盐");
                 } else {
                     cbAddictedToSalt.setChecked(false);
-                    MyApplication.dietList.remove("嗜盐");
+                    dietList.remove("嗜盐");
                 }
                 break;
             case R.id.cb_meat_and_vegetables:
@@ -404,17 +512,17 @@ public class PersonalTwoActivity extends Activity implements OnClickListener, Co
                     cbMeatAndVegetables.setChecked(true);
                     cbMeatMain.setChecked(false);
                     cbVegetablesMain.setChecked(false);
-                    MyApplication.dietList.add("荤素均衡");
-                    if (MyApplication.dietList.contains("荤食为主")) {
-                        MyApplication.dietList.remove("荤食为主");
+                    dietList.add("荤素均衡");
+                    if (dietList.contains("荤食为主")) {
+                        dietList.remove("荤食为主");
                     }
-                    if (MyApplication.dietList.contains("素食为主")) {
-                        MyApplication.dietList.remove("素食为主");
+                    if (dietList.contains("素食为主")) {
+                        dietList.remove("素食为主");
                     }
 
                 } else {
                     cbMeatAndVegetables.setChecked(false);
-                    MyApplication.dietList.remove("荤素均衡");
+                    dietList.remove("荤素均衡");
                 }
                 break;
             case R.id.cb_Meat_main:
@@ -422,16 +530,16 @@ public class PersonalTwoActivity extends Activity implements OnClickListener, Co
                     cbMeatMain.setChecked(true);
                     cbMeatAndVegetables.setChecked(false);
                     cbVegetablesMain.setChecked(false);
-                    MyApplication.dietList.add("荤食为主");
-                    if (MyApplication.dietList.contains("荤素均衡")) {
-                        MyApplication.dietList.remove("荤素均衡");
+                    dietList.add("荤食为主");
+                    if (dietList.contains("荤素均衡")) {
+                        dietList.remove("荤素均衡");
                     }
-                    if (MyApplication.dietList.contains("素食为主")) {
-                        MyApplication.dietList.remove("素食为主");
+                    if (dietList.contains("素食为主")) {
+                        dietList.remove("素食为主");
                     }
                 } else {
                     cbMeatMain.setChecked(false);
-                    MyApplication.dietList.remove("荤食为主");
+                    dietList.remove("荤食为主");
                 }
                 break;
             case R.id.cb_vegetables_main:
@@ -439,16 +547,16 @@ public class PersonalTwoActivity extends Activity implements OnClickListener, Co
                     cbVegetablesMain.setChecked(true);
                     cbMeatAndVegetables.setChecked(false);
                     cbMeatMain.setChecked(false);
-                    MyApplication.dietList.add("素食为主");
-                    if (MyApplication.dietList.contains("荤素均衡")) {
-                        MyApplication.dietList.remove("荤素均衡");
+                    dietList.add("素食为主");
+                    if (dietList.contains("荤素均衡")) {
+                        dietList.remove("荤素均衡");
                     }
-                    if (MyApplication.dietList.contains("荤食为主")) {
-                        MyApplication.dietList.remove("荤食为主");
+                    if (dietList.contains("荤食为主")) {
+                        dietList.remove("荤食为主");
                     }
                 } else {
                     cbVegetablesMain.setChecked(false);
-                    MyApplication.dietList.remove("素食为主");
+                    dietList.remove("素食为主");
                 }
                 break;
 
@@ -456,7 +564,7 @@ public class PersonalTwoActivity extends Activity implements OnClickListener, Co
             //设置抽烟情况
             case R.id.cb_smoke_never:
                 if (isChecked) {
-                    detailTwo.setSmoke("从不");
+                    smoke = "从不";
                     cbSmokeNever.setChecked(true);
                     cbSmokeQuit.setChecked(false);
                     cbSmoking.setChecked(false);
@@ -464,7 +572,7 @@ public class PersonalTwoActivity extends Activity implements OnClickListener, Co
                 break;
             case R.id.cb_smoking:
                 if (isChecked) {
-                    detailTwo.setSmoke("吸烟");
+                    smoke = "吸烟";
                     cbSmokeNever.setChecked(false);
                     cbSmokeQuit.setChecked(false);
                     cbSmoking.setChecked(true);
@@ -472,7 +580,7 @@ public class PersonalTwoActivity extends Activity implements OnClickListener, Co
                 break;
             case R.id.cb_smoke_quit:
                 if (isChecked) {
-                    detailTwo.setSmoke("已戒烟");
+                    smoke = "已戒烟";
                     cbSmoking.setChecked(false);
                     cbSmokeNever.setChecked(false);
                     cbSmokeQuit.setChecked(true);
@@ -482,7 +590,7 @@ public class PersonalTwoActivity extends Activity implements OnClickListener, Co
             //设置喝酒情况
             case R.id.cb_drink_every_day:
                 if (isChecked) {
-                    detailTwo.setDrink("每天");
+                    drink = "每天";
                     cbDrinkNever.setChecked(false);
                     cbDrinkOccasionally.setChecked(false);
                     cbDrinkFrequency.setChecked(false);
@@ -491,7 +599,7 @@ public class PersonalTwoActivity extends Activity implements OnClickListener, Co
                 break;
             case R.id.cb_drink_frequency:
                 if (isChecked) {
-                    detailTwo.setDrink("经常");
+                    drink = "经常";
                     cbDrinkNever.setChecked(false);
                     cbDrinkOccasionally.setChecked(false);
                     cbDrinkFrequency.setChecked(true);
@@ -500,7 +608,7 @@ public class PersonalTwoActivity extends Activity implements OnClickListener, Co
                 break;
             case R.id.cb_drink_occasionally:
                 if (isChecked) {
-                    detailTwo.setDrink("偶尔");
+                    drink = "偶尔";
                     cbDrinkNever.setChecked(false);
                     cbDrinkOccasionally.setChecked(true);
                     cbDrinkFrequency.setChecked(false);
@@ -509,7 +617,7 @@ public class PersonalTwoActivity extends Activity implements OnClickListener, Co
                 break;
             case R.id.cb_drink_never:
                 if (isChecked) {
-                    detailTwo.setDrink("从不");
+                    drink = "从不";
                     cbDrinkNever.setChecked(true);
                     cbDrinkOccasionally.setChecked(false);
                     cbDrinkFrequency.setChecked(false);
@@ -529,229 +637,208 @@ public class PersonalTwoActivity extends Activity implements OnClickListener, Co
                     cbCosmetic.setChecked(false);
                     cbAlcohol.setChecked(false);
                     cbPaint.setChecked(false);
-                    MyApplication.allergicList.add("无");
+                    allergicList.add("无");
                 } else {
-                    MyApplication.allergicList.remove("无");
+                    allergicList.remove("无");
                 }
                 break;
             case R.id.cb_paint:
                 cbPaint.setChecked(isChecked);
                 if (isChecked) {
-                    MyApplication.allergicList.add("油漆");
+                    allergicList.add("油漆");
                     cbNothing.setChecked(false);
                 } else {
-                    MyApplication.allergicList.remove("油漆");
+                    allergicList.remove("油漆");
                 }
                 break;
             case R.id.cb_alcohol:
                 cbAlcohol.setChecked(isChecked);
                 if (isChecked) {
-                    MyApplication.allergicList.add("酒精");
+                    allergicList.add("酒精");
                     cbNothing.setChecked(false);
                 } else {
-                    MyApplication.allergicList.remove("酒精");
+                    allergicList.remove("酒精");
                 }
                 break;
             case R.id.cb_cosmetic:
                 cbCosmetic.setChecked(isChecked);
                 if (isChecked) {
-                    MyApplication.allergicList.add("化妆品");
+                    allergicList.add("化妆品");
                     cbNothing.setChecked(false);
                 } else {
-                    MyApplication.allergicList.remove("化妆品");
+                    allergicList.remove("化妆品");
                 }
                 break;
             case R.id.cb_Plaster:
                 cbPlaster.setChecked(isChecked);
                 if (isChecked) {
-                    MyApplication.allergicList.add("膏药");
+                    allergicList.add("膏药");
                     cbNothing.setChecked(false);
                 } else {
-                    MyApplication.allergicList.remove("膏药");
+                    allergicList.remove("膏药");
                 }
                 break;
             case R.id.cb_drug:
                 cbDrug.setChecked(isChecked);
                 if (isChecked) {
-                    MyApplication.allergicList.add("药物");
+                    allergicList.add("药物");
                     cbNothing.setChecked(false);
                 } else {
-                    MyApplication.allergicList.remove("药物");
+                    allergicList.remove("药物");
                 }
                 break;
             case R.id.cb_pollen:
                 cbPollen.setChecked(isChecked);
                 if (isChecked) {
-                    MyApplication.allergicList.add("花粉");
+                    allergicList.add("花粉");
                     cbNothing.setChecked(false);
                 } else {
-                    MyApplication.allergicList.remove("花粉");
+                    allergicList.remove("花粉");
                 }
                 break;
             case R.id.cb_seafood:
                 cbSeafood.setChecked(isChecked);
                 if (isChecked) {
-                    MyApplication.allergicList.add("海鲜");
+                    allergicList.add("海鲜");
                     cbNothing.setChecked(false);
                 } else {
-                    MyApplication.allergicList.remove("海鲜");
+                    allergicList.remove("海鲜");
                 }
                 break;
             case R.id.cb_High_protein_food:
                 cbHighProteinFood.setChecked(isChecked);
                 if (isChecked) {
-                    MyApplication.allergicList.add("高蛋白食物");
+                    allergicList.add("高蛋白食物");
                     cbNothing.setChecked(false);
                 } else {
-                    MyApplication.allergicList.remove("高蛋白食物");
+                    allergicList.remove("高蛋白食物");
+                }
+                break;
+
+            case R.id.cb_low_sugar:
+                cbLowSugar.setChecked(isChecked);
+                if (isChecked) {
+                    illnessList.add("低血糖");
+                } else {
+                    illnessList.remove("低血糖");
+                }
+                break;
+            case R.id.cb_high_sugar:
+                cbHighSugar.setChecked(isChecked);
+                if (isChecked) {
+                    illnessList.add("高血糖");
+                } else {
+                    illnessList.remove("高血糖");
+                }
+                break;
+            case R.id.cb_cardiovas:
+                cbCardiovas.setChecked(isChecked);
+                if (isChecked) {
+                    illnessList.add("心脑血管");
+                } else {
+                    illnessList.remove("心脑血管");
+                }
+                break;
+            case R.id.high_xuezhi:
+                cbHighXuezhi.setChecked(isChecked);
+                if (isChecked) {
+                    illnessList.add("高血脂");
+                } else {
+                    illnessList.remove("高血脂");
+                }
+                break;
+            case R.id.cb_high_pressure:
+                cbHighPressure.setChecked(isChecked);
+                if (isChecked) {
+                    illnessList.add("高血压");
+                } else {
+                    illnessList.remove("高血压");
+                }
+                break;
+
+            case R.id.cb_sub_health:
+                cbSubHealth.setChecked(isChecked);
+                if (isChecked) {
+                    illnessList.add("亚健康");
+                } else {
+                    illnessList.remove("亚健康");
+                }
+                break;
+            case R.id.cb_tumor:
+                cbTumor.setChecked(isChecked);
+                if (isChecked) {
+                    illnessList.add("免疫、肿瘤");
+                } else {
+                    illnessList.remove("免疫、肿瘤");
+                }
+                break;
+            case R.id.cb_eye_disease:
+                cbEyeDisease.setChecked(isChecked);
+                if (isChecked) {
+                    illnessList.add("眼部疾病");
+                } else {
+                    illnessList.remove("眼部疾病");
+                }
+                break;
+            case R.id.cb_breath_diseases:
+                cbBreathDiseases.setChecked(isChecked);
+                if (isChecked) {
+                    illnessList.add("呼吸类疾病");
+                } else {
+                    illnessList.remove("呼吸类疾病");
+                }
+                break;
+            case R.id.cb_disorders:
+                cbDisorders.setChecked(isChecked);
+                if (isChecked) {
+                    illnessList.add("胃肠疾病");
+                } else {
+                    illnessList.remove("胃肠疾病");
+                }
+                break;
+            case R.id.cb_rheumatic_pain:
+                cbRheumaticPain.setChecked(isChecked);
+                if (isChecked) {
+                    illnessList.add("风湿类疼痛");
+                } else {
+                    illnessList.remove("风湿类疼痛");
+                }
+                break;
+            case R.id.cb_neck_pain:
+                cbNeckPain.setChecked(isChecked);
+                if (isChecked) {
+                    illnessList.add("颈肩腰腿疼");
+                } else {
+                    illnessList.remove("颈肩腰腿疼");
+                }
+                break;
+            case R.id.cb_arthritis:
+                cbArthritis.setChecked(isChecked);
+                if (isChecked) {
+                    illnessList.add("关节炎");
+                } else {
+                    illnessList.remove("关节炎");
+                }
+                break;
+            case R.id.cb_Liver_disease:
+                cbLiverDisease.setChecked(isChecked);
+                if (isChecked) {
+                    illnessList.add("肝病");
+                } else {
+                    illnessList.remove("肝病");
+                }
+                break;
+            case R.id.cb_others:
+                cbOthers.setChecked(isChecked);
+                if (isChecked) {
+                    illnessList.add("其他");
+                } else {
+                    illnessList.remove("其他");
                 }
                 break;
             default:
                 break;
         }
 
-    }
-
-
-    private void initDetailTwo(PersonalDetailTwo detailTwo)
-    {
-        if (detailTwo == null){
-            return;
-        }
-        if (!TextUtils.isEmpty(detailTwo.getHobby())) {
-            String[] hobbys = detailTwo.getHobby().split("@");
-            for (String hobby : hobbys) {
-                switch (hobby) {
-                    case "评书":
-                        cbBooks.setChecked(true);
-                        break;
-                    case "戏曲":
-                        cbDrama.setChecked(true);
-                        break;
-                    case "舞蹈":
-                        cbDance.setChecked(true);
-                        break;
-                    case "其他":
-                        cbOther.setChecked(true);
-                        break;
-                }
-            }
-        }
-
-        if (!TextUtils.isEmpty(detailTwo.getSport())) {
-            switch (detailTwo.getSport()) {
-                case "每天":
-                    cbTrainEveryDay.setChecked(true);
-                    break;
-                case "每周多次":
-                    cbTrainManyEveryWeek.setChecked(true);
-                    break;
-                case "偶尔":
-                    cbTrainOccasionally.setChecked(true);
-                    break;
-                case "不锻炼":
-                    cbTrainNever.setChecked(true);
-                    break;
-            }
-        }
-
-        if (!TextUtils.isEmpty(detailTwo.getDiet())) {
-            String[] attrs = detailTwo.getDiet().split("@");
-            for (String attr : attrs) {
-                switch (attr) {
-                    case "嗜油":
-                        cbAddictedToOil.setChecked(true);
-                        break;
-                    case "嗜盐":
-                        cbAddictedToSalt.setChecked(true);
-                        break;
-                    case "素食为主":
-                        cbVegetablesMain.setChecked(true);
-                        break;
-                    case "荤食为主":
-                        cbMeatMain.setChecked(true);
-                        break;
-                    case "荤素均衡":
-                        cbMeatAndVegetables.setChecked(true);
-                        break;
-                }
-            }
-        }
-
-        if (!TextUtils.isEmpty(detailTwo.getSmoke())) {
-            switch (detailTwo.getSmoke()) {
-                case "从不":
-                    cbSmokeNever.setChecked(true);
-                    break;
-                case "已戒烟":
-                    cbSmokeQuit.setChecked(true);
-                    break;
-                case "吸烟":
-                    cbSmoking.setChecked(true);
-            }
-        }
-
-        if (!TextUtils.isEmpty(detailTwo.getDrink())) {
-            switch (detailTwo.getDrink()) {
-                case "每天":
-                    cbDrinkEveryDay.setChecked(true);
-                    break;
-                case "经常":
-                    cbDrinkFrequency.setChecked(true);
-                    break;
-                case "偶尔":
-                    cbDrinkOccasionally.setChecked(true);
-                    break;
-                case "从不":
-                    cbDrinkNever.setChecked(true);
-                    break;
-            }
-        }
-
-        if (!TextUtils.isEmpty(detailTwo.getAllergic())) {
-            String[] allergics = detailTwo.getAllergic().split("@");
-            for (String allergic : allergics) {
-                switch (allergic) {
-                    case "无":
-                        cbNothing.setChecked(true);
-                        break;
-                    case "高蛋白食物":
-                        cbHighProteinFood.setChecked(true);
-                        break;
-                    case "海鲜":
-                        cbSeafood.setChecked(true);
-                        break;
-                    case "花粉":
-                        cbPollen.setChecked(true);
-                        break;
-                    case "药物":
-                        cbDrug.setChecked(true);
-                        break;
-                    case "膏药":
-                        cbPlaster.setChecked(true);
-                        break;
-                    case "化妆品":
-                        cbCosmetic.setChecked(true);
-                        break;
-                    case "酒精":
-                        cbAlcohol.setChecked(true);
-                        break;
-                    case "油漆":
-                        cbPaint.setChecked(true);
-                        break;
-                }
-            }
-        }
-    }
-
-    public void onEventMainThread(Event event)
-    {
-    }
-
-    @Override
-    protected void onDestroy()
-    {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 }

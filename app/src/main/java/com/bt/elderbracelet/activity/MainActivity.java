@@ -45,9 +45,10 @@ import android.widget.Toast;
 
 import com.bonten.ble.application.MyApplication;
 import com.bt.elderbracelet.data.ModelDao;
-import com.bt.elderbracelet.entity.DeviceInfo;
 import com.bt.elderbracelet.entity.Register;
-import com.bt.elderbracelet.entity.others.Event;
+import com.bt.elderbracelet.entity.others.PersonalDetailOne;
+import com.bt.elderbracelet.entity.others.PersonalDetailThree;
+import com.bt.elderbracelet.entity.others.PersonalDetailTwo;
 import com.bt.elderbracelet.entity.others.PushMessage;
 import com.bt.elderbracelet.okhttp.HttpRequest;
 import com.bt.elderbracelet.okhttp.URLConstant;
@@ -87,7 +88,6 @@ public class MainActivity extends Activity implements OnClickListener {
     private Runnable runnable_reconn;   //用于定时重连
     private Runnable runnable_stop_scan;   //用于停止扫描蓝牙
 
-    boolean mScaning = false;     //代表当前是否正在搜索蓝牙
     private AtomicInteger pushCount = new AtomicInteger(10);
     private AlertDialog mConnectingDialog = null;
     private AlertDialog mScanningDialog = null;
@@ -129,9 +129,6 @@ public class MainActivity extends Activity implements OnClickListener {
             startMonitorPhone();
         }
 
-        SystemClock.sleep(2000);
-        //这里必须要 睡眠2秒，是为了保证BleService已经打开了一切通知，如果没停顿两秒，
-        //则很有可能会报错
         /**
          * todo  BleService.sendCommand(OrderData.getCommonOrder(OrderData.GET_SLEEP_BIG_DATA));
          */
@@ -140,6 +137,8 @@ public class MainActivity extends Activity implements OnClickListener {
         //将昨天的睡眠数据补充完整
         SystemClock.sleep(500);
         syncHistoryData();    //很关键，每次连接手环后，都要将手机中的数据同步到服务器上
+
+        saveUserDetailInfo();
     }
 
     /**
@@ -353,7 +352,6 @@ public class MainActivity extends Activity implements OnClickListener {
         }
 
         if (MethodUtils.is3G(getApplicationContext()) || MethodUtils.isWifi(getApplicationContext())) {
-            System.out.println("正在同步数据到服务器,请耐心等待几秒");
             MethodUtils.showToast(MainActivity.this, "正在同步数据到服务器,请耐心等待几秒");
             MethodUtils.synHistotyData(MainActivity.this);
         } else {
@@ -737,6 +735,51 @@ public class MainActivity extends Activity implements OnClickListener {
         //这是内部最重要的函数，要执行两个步骤：
         //第一：container.addView() 添加View到ViewPager中
         //第二：返回刚刚添加的View
+    }
+
+    private void saveUserDetailInfo() {
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", SpHelp.getUserId());
+        HttpRequest.get(URLConstant.URL_GET_PERSONAL_DETAIL, null, params, new HttpRequest.HttpRequestCallback() {
+            @Override
+            public void onSuccess(JSONObject response) {
+                if (response.optString("error").equals("0")) {
+                    JSONObject data = response.optJSONObject("data");
+
+                    PersonalDetailOne one = new PersonalDetailOne();
+                    one.setNation(data.optString("folk"));
+                    one.setEducation(data.optString("education"));
+                    one.setOccupation(data.optString("job"));
+                    one.setAddress(data.optString("address"));
+                    one.setWatchHealthTv(data.optBoolean("isWatchHealthTV"));
+
+                    SpHelp.saveObject(SpHelp.PERSONAL_DETAIL_ONE, one);
+
+                    PersonalDetailTwo two = new PersonalDetailTwo();
+                    two.setHobby(data.optString("art"));
+                    two.setSport(data.optString("sportsRate"));
+                    two.setDiet(data.optString("diet"));
+                    two.setSmoke(data.optString("smoke"));
+                    two.setDrink(data.optString("drink"));
+                    two.setAllergic(data.optString("allergic"));
+
+                    SpHelp.saveObject(SpHelp.PERSONAL_DETAIL_TWO, two);
+
+                    PersonalDetailThree three = new PersonalDetailThree();
+                    three.setIllness(data.optString("illness"));
+                    three.setPhysique(data.optString("body"));
+                    SpHelp.saveObject(SpHelp.PERSONAL_DETAIL_THREE, three);
+
+                } else {
+                    MethodUtils.showToast(getApplicationContext(), "验证失败: " + response.optString("error_info"));
+                }
+            }
+
+            @Override
+            public void onFailure() {
+                MethodUtils.showToast(getApplicationContext(), "获取用户详细信息失败");
+            }
+        });
     }
 
 

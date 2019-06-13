@@ -43,16 +43,11 @@ public class MyApplication extends Application {
     public static ModelDao model = null;
     public static String id = null;
 
-    public static int sleepTime = 0;
-    public static int sleepDeepTime1 = 0;
-    public static int sleepDeepTime2 = 0;
-    public static int sleepDeepTime3 = 0;
     public static ArrayList<String> hobbyList;
     public static ArrayList<String> dietList;
     public static ArrayList<String> allergicList;
     public static ArrayList<String> illnessList;
 
-    public static String nStep_distance = "";
     public static SharedPreferences sp;
     public static final String PRESSURE_TYPE = "bracelet_pressure";
     public static final String SUGAR_TYPE = "sugar";
