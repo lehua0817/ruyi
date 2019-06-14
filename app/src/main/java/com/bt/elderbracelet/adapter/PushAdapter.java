@@ -27,33 +27,28 @@ public class PushAdapter extends BaseAdapter {
     private List<PushMessage> messageList;
     private Context context;
 
-    public PushAdapter(List<PushMessage> messageList, Context context)
-    {
+    public PushAdapter(List<PushMessage> messageList, Context context) {
         this.messageList = messageList;
         this.context = context;
     }
 
     @Override
-    public int getCount()
-    {
+    public int getCount() {
         return messageList.size();
     }
 
     @Override
-    public Object getItem(int position)
-    {
+    public Object getItem(int position) {
         return messageList.get(position);
     }
 
     @Override
-    public long getItemId(int position)
-    {
+    public long getItemId(int position) {
         return 0;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent)
-    {
+    public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new ViewHolder();
@@ -81,8 +76,7 @@ public class PushAdapter extends BaseAdapter {
         viewHolder.tvBrief.setText(pushMessage.getBrief());
         viewHolder.btnDetail.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 Intent intent = new Intent(context, PushDetailActivity.class);
                 intent.putExtra("pushMessage", pushMessage);
                 context.startActivity(intent);
@@ -98,11 +92,10 @@ public class PushAdapter extends BaseAdapter {
 
 
     /**
-     *  从后台服务器传过来的颜色数值可能是“#123456”,这是正常的，我们不需要修改
-     *  也有可能是是“#123”，安卓API不认识这种表达方式，则我们要将它扩招为“#112233”
+     * 从后台服务器传过来的颜色数值可能是“#123456”,这是正常的，我们不需要修改
+     * 也有可能是是“#123”，安卓API不认识这种表达方式，则我们要将它扩招为“#112233”
      */
-    public int getColor(String colorString)
-    {
+    public int getColor(String colorString) {
         int color = 0;
         if (!TextUtils.isEmpty(colorString)) {
             if (colorString.length() == 4) {

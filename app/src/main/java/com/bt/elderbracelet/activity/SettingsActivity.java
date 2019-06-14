@@ -142,15 +142,13 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
                         SpHelp.saveUserId("");
                         SpHelp.saveDeviceMac("");
                         SpHelp.saveUserPhoto(null);
-                        SpHelp.savePersonalDetailOne(null);
-                        SpHelp.savePersonalDetailTwo(null);
-                        SpHelp.savePersonalDetailThree(null);
+                        SpHelp.saveObject(SpHelp.REGISTER_INFO, null);
 
                         callRemoteDisconnect();   //断开手环和手机相连接
 
                         MyApplication.getInstance().exit();
                         //finish();
-                        Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
+                        Intent intent = new Intent(SettingsActivity.this, BindActivity.class);
                         startActivity(intent);
                     }
                 });

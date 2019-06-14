@@ -123,7 +123,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                         register.setAllergic(data.optString("llergic"));
                         register.setIllness(data.optString("illness"));
 
-                        modelDao.insertRegister(register);
+                        SpHelp.saveObject(SpHelp.REGISTER_INFO, register);
                         SpHelp.saveUserId(data.optString("phone"));
 
                         MyApplication.getInstance().exit(); // 清空所有activity栈

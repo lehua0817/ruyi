@@ -22,6 +22,14 @@ public class Register implements Serializable {
     private String serviceId;    //客服ID
 
     // 后来添加的字段
+    private String nation;      //民族
+    private String education;   //教育背景
+    private String occupation; //从事职业
+    private String address;    // 家庭住址
+    private boolean watchHealthTv;
+
+
+
     private String art;         // 喜欢的文娱项目
     private String sportsRate;  // 体育锻炼频道
     private String diet;        // 饮食习惯
@@ -29,6 +37,57 @@ public class Register implements Serializable {
     private String drink;       // 喝酒状况
     private String allergic;     // 过敏情况
     private String illness;      // 患病情况
+    private String body;         // 体质
+
+
+    public String getNation() {
+        return nation;
+    }
+
+    public void setNation(String nation) {
+        this.nation = nation;
+    }
+
+    public String getEducation() {
+        return education;
+    }
+
+    public void setEducation(String education) {
+        this.education = education;
+    }
+
+    public String getOccupation() {
+        return occupation;
+    }
+
+    public void setOccupation(String occupation) {
+        this.occupation = occupation;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public boolean isWatchHealthTv() {
+        return watchHealthTv;
+    }
+
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    public void setWatchHealthTv(boolean watchHealthTv) {
+        this.watchHealthTv = watchHealthTv;
+    }
 
 
     public int getId() {
@@ -207,5 +266,39 @@ public class Register implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @Override
+    public String toString() {
+        return "Register{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", province='" + province + '\'' +
+                ", city='" + city + '\'' +
+                ", area='" + area + '\'' +
+                ", num='" + num + '\'' +
+                ", password='" + password + '\'' +
+                ", sex='" + sex + '\'' +
+                ", age='" + age + '\'' +
+                ", height='" + height + '\'' +
+                ", weight='" + weight + '\'' +
+                ", stepDistance='" + stepDistance + '\'' +
+                ", urgentContactName='" + urgentContactName + '\'' +
+                ", urgentContactPhone='" + urgentContactPhone + '\'' +
+                ", serviceId='" + serviceId + '\'' +
+                ", nation='" + nation + '\'' +
+                ", education='" + education + '\'' +
+                ", occupation='" + occupation + '\'' +
+                ", address='" + address + '\'' +
+                ", watchHealthTv=" + watchHealthTv +
+                ", art='" + art + '\'' +
+                ", sportsRate='" + sportsRate + '\'' +
+                ", diet='" + diet + '\'' +
+                ", smoke='" + smoke + '\'' +
+                ", drink='" + drink + '\'' +
+                ", allergic='" + allergic + '\'' +
+                ", illness='" + illness + '\'' +
+                ", body='" + body + '\'' +
+                '}';
     }
 }

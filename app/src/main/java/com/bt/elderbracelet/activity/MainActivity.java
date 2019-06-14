@@ -1,10 +1,5 @@
 package com.bt.elderbracelet.activity;
 
-/**
- * 中华人民共和国万岁，毛主义永垂不朽
- */
-
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
@@ -46,9 +41,6 @@ import android.widget.Toast;
 import com.bonten.ble.application.MyApplication;
 import com.bt.elderbracelet.data.ModelDao;
 import com.bt.elderbracelet.entity.Register;
-import com.bt.elderbracelet.entity.others.PersonalDetailOne;
-import com.bt.elderbracelet.entity.others.PersonalDetailThree;
-import com.bt.elderbracelet.entity.others.PersonalDetailTwo;
 import com.bt.elderbracelet.entity.others.PushMessage;
 import com.bt.elderbracelet.okhttp.HttpRequest;
 import com.bt.elderbracelet.okhttp.URLConstant;
@@ -71,6 +63,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.bt.elderbracelet.tools.SpHelp.REGISTER_INFO;
 /**
  * 主界面类
  * 主要处理功能:
@@ -475,7 +468,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
         vpViewPager = (ViewPager) findViewById(R.id.vpViewPager1);
 
-        Register userInfo = modelDao.getLastRegister();
+        Register userInfo = (Register) SpHelp.getObject(REGISTER_INFO);
         if (userInfo != null) {
             tv_name.setText(userInfo.getName());
         }
@@ -601,7 +594,7 @@ public class MainActivity extends Activity implements OnClickListener {
                 break;
 
             case R.id.iv_photo:  //主页面的用户头像 点击后进入完善用户信息的界面
-                Intent intent14 = new Intent(getApplicationContext(), BasicInfomationActivity.class);
+                Intent intent14 = new Intent(getApplicationContext(), BasicInfoActivity.class);
                 startActivity(intent14);
                 break;
         }
@@ -746,29 +739,25 @@ public class MainActivity extends Activity implements OnClickListener {
                 if (response.optString("error").equals("0")) {
                     JSONObject data = response.optJSONObject("data");
 
-                    PersonalDetailOne one = new PersonalDetailOne();
-                    one.setNation(data.optString("folk"));
-                    one.setEducation(data.optString("education"));
-                    one.setOccupation(data.optString("job"));
-                    one.setAddress(data.optString("address"));
-                    one.setWatchHealthTv(data.optBoolean("isWatchHealthTV"));
+                    Register register = (Register) SpHelp.getObject(REGISTER_INFO);
 
-                    SpHelp.saveObject(SpHelp.PERSONAL_DETAIL_ONE, one);
+                    register.setNation(data.optString("folk"));
+                    register.setEducation(data.optString("education"));
+                    register.setOccupation(data.optString("job"));
+                    register.setAddress(data.optString("address"));
+                    register.setWatchHealthTv(data.optBoolean("isWatchHealthTV"));
 
-                    PersonalDetailTwo two = new PersonalDetailTwo();
-                    two.setHobby(data.optString("art"));
-                    two.setSport(data.optString("sportsRate"));
-                    two.setDiet(data.optString("diet"));
-                    two.setSmoke(data.optString("smoke"));
-                    two.setDrink(data.optString("drink"));
-                    two.setAllergic(data.optString("allergic"));
 
-                    SpHelp.saveObject(SpHelp.PERSONAL_DETAIL_TWO, two);
+                    register.setArt(data.optString("art"));
+                    register.setSportsRate(data.optString("sportsRate"));
+                    register.setDiet(data.optString("diet"));
+                    register.setSmoke(data.optString("smoke"));
+                    register.setDrink(data.optString("drink"));
+                    register.setAllergic(data.optString("allergic"));
 
-                    PersonalDetailThree three = new PersonalDetailThree();
-                    three.setIllness(data.optString("illness"));
-                    three.setPhysique(data.optString("body"));
-                    SpHelp.saveObject(SpHelp.PERSONAL_DETAIL_THREE, three);
+                    register.setIllness(data.optString("illness"));
+                    register.setBody(data.optString("body"));
+                    SpHelp.saveObject(SpHelp.REGISTER_INFO, register);
 
                 } else {
                     MethodUtils.showToast(getApplicationContext(), "验证失败: " + response.optString("error_info"));

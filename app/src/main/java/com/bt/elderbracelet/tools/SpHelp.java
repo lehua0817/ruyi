@@ -350,40 +350,8 @@ public class SpHelp implements Serializable {
         return object;
     }
 
-    //保存PersonalDetailOne数据
-    public static final String PERSONAL_DETAIL_ONE = "personal_detail_one";
-
-    public static void savePersonalDetailOne(String detail) {
-        MyApplication.sp.edit().putString(PERSONAL_DETAIL_ONE, detail).commit();
-    }
-
-    public static String getPersonalDetailOne() {
-        return MyApplication.sp.getString(PERSONAL_DETAIL_ONE, null);
-    }
-
-    //保存PersonalDetailTwo数据
-    public static final String PERSONAL_DETAIL_TWO = "personal_detail_two";
-
-    public static void savePersonalDetailTwo(String detail) {
-        MyApplication.sp.edit().putString(PERSONAL_DETAIL_TWO, detail).commit();
-    }
-
-    public static String getPersonalDetailTwo() {
-        return MyApplication.sp.getString(PERSONAL_DETAIL_TWO, null);
-    }
-
-
-    //保存PersonalDetailThree数据
-    public static final String PERSONAL_DETAIL_THREE = "personal_detail_three";
-
-    public static void savePersonalDetailThree(String detail) {
-        MyApplication.sp.edit().putString(PERSONAL_DETAIL_THREE, detail).commit();
-    }
-
-    public static String getPersonalDetailThree() {
-        return MyApplication.sp.getString(PERSONAL_DETAIL_THREE, null);
-    }
-
+    //保存用户注册信息
+    public static final String REGISTER_INFO = "register_info";
 
     /**
      * 来电提醒开关

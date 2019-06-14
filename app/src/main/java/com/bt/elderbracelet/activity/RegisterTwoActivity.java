@@ -3,6 +3,7 @@ package com.bt.elderbracelet.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -11,7 +12,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 import com.bonten.ble.application.MyApplication;
-import com.bt.elderbracelet.data.ModelDao;
 import com.bt.elderbracelet.entity.Register;
 import com.bt.elderbracelet.okhttp.HttpRequest;
 import com.bt.elderbracelet.tools.MethodUtils;
@@ -104,7 +104,6 @@ public class RegisterTwoActivity extends Activity implements OnClickListener, Co
     private List<String> dietList = new ArrayList<>();
     private List<String> allergicList = new ArrayList<>();
     private List<String> illnessList = new ArrayList<>();
-    private ModelDao modelDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -241,7 +240,6 @@ public class RegisterTwoActivity extends Activity implements OnClickListener, Co
     }
 
     private void initData() {
-        modelDao = new ModelDao(this);
         registerInfo = (Register) getIntent().getSerializableExtra("registerInfo");
     }
 
@@ -253,8 +251,6 @@ public class RegisterTwoActivity extends Activity implements OnClickListener, Co
             if (!checkFinish()) {
                 return;
             }
-            Intent intent = new Intent(getApplicationContext(), PersonalThreeActivity.class);
-            Bundle bundle = new Bundle();
 
             if (hobbyList != null && hobbyList.size() > 0) {
                 StringBuilder builder = new StringBuilder("");
@@ -341,8 +337,11 @@ public class RegisterTwoActivity extends Activity implements OnClickListener, Co
                 if (response.optString("error").equals("0")) {
 
                     MethodUtils.showToast(getApplicationContext(), "注册成功");
-                    modelDao.insertRegister(registerInfo);         //将用户注册信息保存到本地数据库
+                    SpHelp.saveObject(SpHelp.REGISTER_INFO, registerInfo);         //将用户注册信息保存到本地数据库
                     SpHelp.saveUserId(registerInfo.getNum());
+
+                    Register info = (Register) SpHelp.getObject(SpHelp.REGISTER_INFO);
+                    Log.v("Info", info.toString());
 
                     Intent intent = new Intent(getApplicationContext(), BoundSuccessActivity.class);  //同时跳转到“注册成功界面”
                     startActivity(intent);

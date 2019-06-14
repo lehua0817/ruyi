@@ -4,10 +4,7 @@ import java.io.Serializable;
 
 public class ClockEntity implements Serializable {
 
-    /**
-     * 时钟数据实体，关键属性是isOpen和whichDays
-     * 用来标志 一周内哪几天 会响闹钟
-     */
+
     public int id;
     public int hour;
     public int minute;

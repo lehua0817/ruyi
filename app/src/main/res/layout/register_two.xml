@@ -950,7 +950,7 @@
                     android:layout_marginBottom="10dp"
                     android:layout_marginTop="8dp"
                     android:background="@drawable/personal_buton_icon"
-                    android:text="注册"
+                    android:text="完成"
                     android:textColor="@color/white_bg"
                     android:textSize="16dp" />
             </LinearLayout>

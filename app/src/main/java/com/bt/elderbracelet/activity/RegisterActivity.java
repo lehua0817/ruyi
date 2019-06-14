@@ -49,12 +49,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
 
-/**
- * 关于短信验证码码服务，服务器要做到几点，
- * 第一：在用户注册时，随机发送验证码，
- * 第二：当用户输入了验证码以后，要能够验证， 用户输入的验证码是否正确
- * 第三： 服务器发送的验证码是有时效性的，超过一段时间验证码就会失效
- */
+
 public class RegisterActivity extends Activity implements OnClickListener {
     private TitleView2 titleView;    //标题栏
     private EditText etname, etnum, etPassword, etCid;  //名字，电话号码，密码，联系的客服编号
@@ -111,7 +106,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.bracelet_register);
+        setContentView(R.layout.bracelet_register22);
         MyApplication.getInstance().addActivity(this);
 //        EventBus.getDefault().register(this);
         init();
@@ -228,7 +223,6 @@ public class RegisterActivity extends Activity implements OnClickListener {
                     register.setServiceId(nCid);
 
                     Intent intent = new Intent(RegisterActivity.this, RegisterTwoActivity.class);
-                    intent.putExtra("password", password);
                     intent.putExtra("registerInfo", register);
                     startActivity(intent);
                 }

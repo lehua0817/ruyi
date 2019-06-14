@@ -39,6 +39,12 @@ public class DBOpenHelper extends SQLiteOpenHelper {
     public static String allergic = "allergic";
     public static String illness = "illness";
 
+    public static String body = "body";
+    public static String nation = "nation";
+    public static String education = "education";
+    public static String occupation = "occupation";
+    public static String address = "address";
+    public static String watchHealthTv = "watchHealthTv";
 
     /**
      * 血压表
@@ -105,7 +111,6 @@ public class DBOpenHelper extends SQLiteOpenHelper {
     public static String sleepDeepTime = "sleepDeepTime";
 
 
-
     @Override
     public void onCreate(SQLiteDatabase db) {
         // TODO Auto-generated method stub
@@ -132,7 +137,13 @@ public class DBOpenHelper extends SQLiteOpenHelper {
                 "smoke text," +
                 "drink text," +
                 "allergic text," +
-                "illness text" + ")";
+                "illness text," +
+                "body text," +
+                "nation text," +
+                "education text," +
+                "occupation text," +
+                "address text," +
+                "watchHealthTv text" + ")";
         db.execSQL(registerSql);
 
         String bloodPressureSql = "create table if not exists " + BloodPressureTable + "(" +

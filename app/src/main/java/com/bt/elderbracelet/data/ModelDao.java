@@ -8,10 +8,9 @@ import android.database.sqlite.SQLiteDatabase;
 import com.bt.elderbracelet.entity.BloodOxygen;
 import com.bt.elderbracelet.entity.BloodPressure;
 import com.bt.elderbracelet.entity.BloodSugar;
+import com.bt.elderbracelet.entity.HeartRate;
 import com.bt.elderbracelet.entity.Sleep;
 import com.bt.elderbracelet.entity.Sport;
-import com.bt.elderbracelet.entity.HeartRate;
-import com.bt.elderbracelet.entity.Register;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,135 +36,11 @@ public class ModelDao {
      * 8.健康数据表
      */
 
-    ////////////  实体Register----表registerTal /////////
-    public long insertRegister(Register register) {
-        List<Register> registerList = queryAllRegister();
-        //删除大于7条的数据
-        if (registerList.size() == 7) {
-            deleteRegister(registerList.get(0).getId());
-        }
 
-        long rowId = -1;
-        ContentValues values = new ContentValues();
-        values.put(DBOpenHelper.name, register.getName());
-        values.put(DBOpenHelper.phoneNum, register.getNum());
-        values.put(DBOpenHelper.province, register.getProvince());
-        values.put(DBOpenHelper.city, register.getCity());
-        values.put(DBOpenHelper.area, register.getArea());
-        values.put(DBOpenHelper.age, register.getAge());
-        values.put(DBOpenHelper.sex, register.getSex());
-        values.put(DBOpenHelper.height, register.getHeight());
-        values.put(DBOpenHelper.weight, register.getWeight());
-        values.put(DBOpenHelper.stepDistance, register.getStepDistance());
-        values.put(DBOpenHelper.urgentContactName, register.getUrgentContactName());
-        values.put(DBOpenHelper.urgentContactPhone, register.getUrgentContactPhone());
-        values.put(DBOpenHelper.serviceId, register.getServiceId());
-
-        values.put(DBOpenHelper.art, register.getArt());
-        values.put(DBOpenHelper.sportsRate, register.getSportsRate());
-        values.put(DBOpenHelper.diet, register.getDiet());
-        values.put(DBOpenHelper.smoke, register.getSmoke());
-        values.put(DBOpenHelper.drink, register.getDrink());
-        values.put(DBOpenHelper.allergic, register.getAllergic());
-        values.put(DBOpenHelper.illness, register.getIllness());
-
-        SQLiteDatabase db = helper.getWritableDatabase();
-        rowId = db.insert(DBOpenHelper.RegisterTable, DBOpenHelper.name, values);
-        db.close();
-        return rowId;
-    }
-
-    public int deleteRegister(int id) {
-        int count = -1;
-        SQLiteDatabase db = helper.getWritableDatabase();
-        count = db.delete(DBOpenHelper.RegisterTable, "_id=" + id, null);
-        db.close();
-        return count;
-    }
-
-    public ArrayList<Register> queryAllRegister() {
-        ArrayList<Register> registers = null;
-        SQLiteDatabase db = helper.getReadableDatabase();
-        Cursor c = db.rawQuery("select * from " + DBOpenHelper.RegisterTable, null);
-        registers = new ArrayList<>();
-        if (c != null && c.getCount() > 0) {
-            while (c.moveToNext()) {
-                Register register = new Register();
-                register.setId(c.getInt(c.getColumnIndex(DBOpenHelper.registerId)));
-                register.setName(c.getString(c.getColumnIndex(DBOpenHelper.name)));
-                register.setProvince(c.getString(c.getColumnIndex(DBOpenHelper.province)));
-                register.setCity(c.getString(c.getColumnIndex(DBOpenHelper.city)));
-                register.setArea(c.getString(c.getColumnIndex(DBOpenHelper.area)));
-                register.setNum(c.getString(c.getColumnIndex(DBOpenHelper.phoneNum)));
-                register.setAge(c.getString(c.getColumnIndex(DBOpenHelper.age)));
-                register.setSex(c.getString(c.getColumnIndex(DBOpenHelper.sex)));
-                register.setHeight(c.getString(c.getColumnIndex(DBOpenHelper.height)));
-                register.setWeight(c.getString(c.getColumnIndex(DBOpenHelper.weight)));
-                register.setStepDistance(c.getString(c.getColumnIndex(DBOpenHelper.stepDistance)));
-                register.setUrgentContactName(c.getString(c.getColumnIndex(DBOpenHelper.urgentContactName)));
-                register.setUrgentContactPhone(c.getString(c.getColumnIndex(DBOpenHelper.urgentContactPhone)));
-                register.setServiceId(c.getString(c.getColumnIndex(DBOpenHelper.serviceId)));
-
-                register.setArt(c.getString(c.getColumnIndex(DBOpenHelper.art)));
-                register.setSportsRate(c.getString(c.getColumnIndex(DBOpenHelper.sportsRate)));
-                register.setDiet(c.getString(c.getColumnIndex(DBOpenHelper.diet)));
-                register.setSmoke(c.getString(c.getColumnIndex(DBOpenHelper.smoke)));
-                register.setDrink(c.getString(c.getColumnIndex(DBOpenHelper.drink)));
-                register.setAllergic(c.getString(c.getColumnIndex(DBOpenHelper.allergic)));
-                register.setIllness(c.getString(c.getColumnIndex(DBOpenHelper.illness)));
-
-                registers.add(register);
-            }
-        }
-        db.close();
-        if (c != null) {
-            c.close();
-        }
-        return registers;
-    }
-
-    public long updateRegister(Register register, int id) {
-        long rowId = -1;
-        ContentValues values = new ContentValues();
-        values.put(DBOpenHelper.registerId, register.getId());
-        values.put(DBOpenHelper.name, register.getName());
-        values.put(DBOpenHelper.phoneNum, register.getNum());
-        values.put(DBOpenHelper.province, register.getProvince());
-        values.put(DBOpenHelper.city, register.getCity());
-        values.put(DBOpenHelper.area, register.getArea());
-        values.put(DBOpenHelper.age, register.getAge());
-        values.put(DBOpenHelper.sex, register.getSex());
-        values.put(DBOpenHelper.height, register.getHeight());
-        values.put(DBOpenHelper.weight, register.getWeight());
-        values.put(DBOpenHelper.stepDistance, register.getStepDistance());
-        values.put(DBOpenHelper.urgentContactName, register.getUrgentContactName());
-        values.put(DBOpenHelper.urgentContactPhone, register.getUrgentContactPhone());
-        values.put(DBOpenHelper.serviceId, register.getServiceId());
-
-        values.put(DBOpenHelper.art, register.getArt());
-        values.put(DBOpenHelper.sportsRate, register.getSportsRate());
-        values.put(DBOpenHelper.diet, register.getDiet());
-        values.put(DBOpenHelper.smoke, register.getSmoke());
-        values.put(DBOpenHelper.drink, register.getDrink());
-        values.put(DBOpenHelper.allergic, register.getAllergic());
-        values.put(DBOpenHelper.illness, register.getIllness());
-
-        SQLiteDatabase db = helper.getWritableDatabase();
-        rowId = db.update(DBOpenHelper.RegisterTable, values, "_id=?", new String[]{id + ""});
-        System.out.println("更新注册**********rowId" + rowId);
-        db.close();
-        return rowId;
-    }
-
-
-    public Register getLastRegister() {
-        ArrayList<Register> userList = queryAllRegister();
-        int size = userList.size();
-        if (size == 0) {
-            return null;
-        }
-        return userList.get(size - 1);
-    }
+    /**
+     * 注册表已经被删除，本地数据库不保存注册表，
+     * 注册表中每次只有一条记录，直接存储在SharePreference中
+     */
 
     //////////  实体BloodPressure------表BloodPressureTable   ////////////////
     public long insertBloodPressure(BloodPressure pressure) {
